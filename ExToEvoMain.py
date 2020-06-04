@@ -20,7 +20,7 @@ Program notes:
    based on the list right below program notes
 """
 # List of all species that we have. May change.
-species_names = {"Testing"}
+species_names = ["Testing"]
 
 # Go through all species
 for species_name in species_names:
@@ -33,7 +33,6 @@ for species_name in species_names:
 
     # Get the current path and create the full path
     cur_path = os.getcwd()
-    species_name = "Testing"
     full_path = cur_path + "/" + species_name
 
     # If path does not exist, raise an exception. Else, change the path
