@@ -9,6 +9,7 @@ import numpy as np
 from sklearn import linear_model
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 import os
 import sys
 print("Done. Beginning program...")
@@ -61,8 +62,8 @@ for species_name in species_names:
     full_data = data["0"]
     for i in range(1, num_datasets):
         full_data = pd.merge(full_data, data[str(i)], how = "outer", on = "Gene Name")
-    print("Unprocesed merged data: ")
-    print(full_data.head(8))
+    #print("Unprocesed merged data: ")
+    #print(full_data.head(8))
     ## Step 3.1: Process data
     """
     Step 3 Notes:
@@ -76,23 +77,25 @@ for species_name in species_names:
     full_data.dropna(inplace = True)
     # Add epsilon to all 0's, log the result, and normalize it
     # Should epsilon be something lower? Higher?
+    # This might be unnecessary
+    num_expression_columns = 0
     ss = StandardScaler()
     for i in list(full_data):
         if i != "Gene Name":
             if i != "Evo Rate":
                     expression_columns.append(i)
-            full_data.loc[full_data[i] == 0, i] = 0.0001
+                    num_expression_columns += 1
+            # This entire section may be unecessary
+            #full_data.loc[full_data[i] == 0, i] = 0.0001
             full_data[i] = np.log(full_data[i])
+            #full_data[i] = np.sqrt(np.sqrt(full_data[i]))
+            
             #full_data[i] = ss.fit_transform(full_data[[i]])
     print("Processed data: ")
     print(full_data.head(8))
     # Get the number of expression columns
     #num_inputs = num_expression_columns
-    # https://www.kaggle.com/timolee/a-home-for-pandas-and-sklearn-beginner-how-tos
-    # train_data['LogSpecificColumn'] = np.log(train_data['SpecificColumn'])
-    # ss = StandardScaler()
-    # train_data['Specific_norm'] = ss.fit_transform(train_data[['Specific']])
-    
+       
     
 
     ## Step 3.2: Section out data
@@ -127,11 +130,22 @@ for species_name in species_names:
     reg_model.fit(expression_data, evo_rates)
     print("R^2: ", reg_model.score(expression_data, evo_rates))
     print("Intercept: ", reg_model.intercept_)
-    print("Coefficients: ", reg_model.coef_)
+    coef = reg_model.coef_
+    print("Coefficients: ", coef)
+
+    # Create the linear combination properly right here
+    print(coef[0])
+    lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
+    print(len(expression_data))
+    for i in range(1, num_expression_columns):
+        lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
     # Figure out how to properly display the coefficients
-    
-    plt.scatter(expression_data, evo_rates, color = 'red')
-    plt.plot(expression_data, reg_model.predict(expression_data), color = 'blue')
+    input()
+    fig, axs = plt.subplots(3)
+    axs[0].scatter(lin_comb, evo_rates, color = 'red')
+    axs[1].scatter(expression_data.iloc[:, 0], evo_rates)
+    axs[2].scatter(expression_data.iloc[:, 1], evo_rates)
+    #plt.plot(expression_data, reg_model.predict(expression_data), color = 'blue')
     plt.show()
 
     input("Happy?")
