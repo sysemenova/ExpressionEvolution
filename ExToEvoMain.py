@@ -62,8 +62,7 @@ for species_name in species_names:
     full_data = data["0"]
     for i in range(1, num_datasets):
         full_data = pd.merge(full_data, data[str(i)], how = "outer", on = "Gene Name")
-    #print("Unprocesed merged data: ")
-    #print(full_data.head(8))
+        
     ## Step 3.1: Process data
     """
     Step 3 Notes:
@@ -80,64 +79,52 @@ for species_name in species_names:
     # This might be unnecessary
     num_expression_columns = 0
     ss = StandardScaler()
+    len_bef = len(full_data)
     for i in list(full_data):
         if i != "Gene Name":
             if i != "Evo Rate":
                     expression_columns.append(i)
                     num_expression_columns += 1
             # This entire section may be unecessary
-            #full_data.loc[full_data[i] == 0, i] = 0.0001
+            full_data = full_data[full_data[i] != 0]
             full_data[i] = np.log(full_data[i])
             #full_data[i] = np.sqrt(np.sqrt(full_data[i]))
             
             #full_data[i] = ss.fit_transform(full_data[[i]])
-    print("Processed data: ")
+    len_aft = len(full_data)
+    print("Num rows dropped:", len_bef-len_aft)
+    if float(len_bef-len_aft)/float(len_aft) > 0.01:
+        print("Warning: more than 1% of your data has been dropped.")
+        input()
+    else:
+        print("Dropped rows within acceptable parameters.")
+    print()
+    print("Processed data head: ")
     print(full_data.head(8))
-    # Get the number of expression columns
-    #num_inputs = num_expression_columns
-       
-    
 
     ## Step 3.2: Section out data
     expression_data = full_data[expression_columns]
     evo_rates = full_data["Evo Rate"]
-    # X = dataset[['part1']]
-    # y = dataset[['part2']]
-    # y = train_data.pop('Gene Data').values gets you that
 
-    ## Step 4: Create a linear regression model
-    """
-    model_input = Input(shape = (num_inputs, ))
-    model_output = Dense(1, activation = 'linear')(model_input)
-    model = Model(inputs = model_input, outputs = model_output)
-
-    sgd = keras.optimizers.SGD()
-    model.compile(optimizer = sgd, loss = 'mse', metrics = ['mse'])
-    model.fit(expression_data, evo_rates, epochs = 30, verbose = 2)
-    # Have to figure out how to properly show everything
-
-    weights = None
-    for layer in model.layers:
-        weights = layer.get_weights()
-    # Filename for weights
-    weights_filename = species_name + ".h5"
-    model.save_weights(weights_filename)
-    # Use matplotlib to plot these weights
-    print(weights)
-    """
-    
+    ## Step 4: Create a linear regression model  
     reg_model = linear_model.LinearRegression()
     reg_model.fit(expression_data, evo_rates)
+    print("Full model:")
     print("R^2: ", reg_model.score(expression_data, evo_rates))
     print("Intercept: ", reg_model.intercept_)
     coef = reg_model.coef_
     print("Coefficients: ", coef)
-
+    print()
+    print("Individual R^2:")
     # Create the linear combination properly right here
-    print(coef[0])
     lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
-    print(len(expression_data))
+    r = linear_model.LinearRegression()
+    r.fit(expression_data.iloc[:, [0]], evo_rates)
+    print(expression_data.columns[0], "R^2:", r.score(expression_data.iloc[:, [0]], evo_rates))
     for i in range(1, num_expression_columns):
+        r = linear_model.LinearRegression()
+        r.fit(expression_data.iloc[:, [i]], evo_rates)
+        print(expression_data.columns[i], "R^2:", r.score(expression_data.iloc[:, [i]], evo_rates))
         lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
     # Figure out how to properly display the coefficients
     input()
@@ -147,8 +134,6 @@ for species_name in species_names:
     axs[2].scatter(expression_data.iloc[:, 1], evo_rates)
     #plt.plot(expression_data, reg_model.predict(expression_data), color = 'blue')
     plt.show()
-
-    input("Happy?")
 
     ## Step 5: Decide what to do from here
 
