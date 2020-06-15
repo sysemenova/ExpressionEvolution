@@ -14,6 +14,29 @@ import os
 import sys
 print("Done. Beginning program...")
 
+def pr_r2(in_r2, data, which):
+    # That - 2 is because Gene Name and Evo Rate are at the beginning. Will likely
+    # Have to debug
+    print(which, "R^2:", in_r2[data.columns.get_loc(which) - 2])
+
+def lin_model(data, columns):
+    expression_data = data[columns]
+    evo_rates = data["Evo Rate"]
+    reg_model = linear_model.LinearRegression()
+    reg_model.fit(expression_data, evo_rates)
+    print("R^2: ", reg_model.score(expression_data, evo_rates))
+    print("Intercept: ", reg_model.intercept_)
+    coef = reg_model.coef_
+    print("Coefficients: ", coef)
+    
+    lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
+    for i in range(1, len(columns)):
+        lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
+
+    plt.scatter(lin_comb, evo_rates, color = 'red')
+    plt.show()
+
+
 """
 Program notes:
  - May change this to a loop that goes through all folders in
@@ -71,15 +94,13 @@ for species_name in species_names:
          - Add an epsilon ep = lowest expression that isn't 0
      - How to normalize properly
     """
+    len_bef = len(full_data)
+    
     expression_columns = []
-    # Drop NA
     full_data.dropna(inplace = True)
-    # Add epsilon to all 0's, log the result, and normalize it
-    # Should epsilon be something lower? Higher?
-    # This might be unnecessary
     num_expression_columns = 0
     ss = StandardScaler()
-    len_bef = len(full_data)
+    
     for i in list(full_data):
         if i != "Gene Name":
             if i != "Evo Rate":
@@ -88,9 +109,9 @@ for species_name in species_names:
             # This entire section may be unecessary
             full_data = full_data[full_data[i] != 0]
             full_data[i] = np.log(full_data[i])
-            #full_data[i] = np.sqrt(np.sqrt(full_data[i]))
             
-            #full_data[i] = ss.fit_transform(full_data[[i]])
+            # Rank data here
+            
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
     if float(len_bef-len_aft)/float(len_aft) > 0.01:
@@ -102,41 +123,51 @@ for species_name in species_names:
     print("Processed data head: ")
     print(full_data.head(8))
 
-    ## Step 3.2: Section out data
+    ## Step 4: Create a full linear regression model  
+    print("Full model:")
+    lin_model(full_data, expression_columns)
     expression_data = full_data[expression_columns]
     evo_rates = full_data["Evo Rate"]
-
-    ## Step 4: Create a linear regression model  
-    reg_model = linear_model.LinearRegression()
-    reg_model.fit(expression_data, evo_rates)
-    print("Full model:")
-    print("R^2: ", reg_model.score(expression_data, evo_rates))
-    print("Intercept: ", reg_model.intercept_)
-    coef = reg_model.coef_
-    print("Coefficients: ", coef)
-    print()
-    print("Individual R^2:")
-    # Create the linear combination properly right here
-    lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
-    r = linear_model.LinearRegression()
-    r.fit(expression_data.iloc[:, [0]], evo_rates)
-    print(expression_data.columns[0], "R^2:", r.score(expression_data.iloc[:, [0]], evo_rates))
-    for i in range(1, num_expression_columns):
+    indiv_r2 = []
+    for i in range(0, num_expression_columns):
         r = linear_model.LinearRegression()
         r.fit(expression_data.iloc[:, [i]], evo_rates)
-        print(expression_data.columns[i], "R^2:", r.score(expression_data.iloc[:, [i]], evo_rates))
-        lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
-    # Figure out how to properly display the coefficients
+        indiv_r2.append(r.score(expression_data.iloc[:, [i]], evo_rates))
+    print()
+    for i in full_data.columns:
+        # This may have to be debugged later
+        if not (i == "Gene Name" or i == "Evo Rate"):
+            pr_r2(indiv_r2, full_data, i)
     input()
-    fig, axs = plt.subplots(3)
-    axs[0].scatter(lin_comb, evo_rates, color = 'red')
-    axs[1].scatter(expression_data.iloc[:, 0], evo_rates)
-    axs[2].scatter(expression_data.iloc[:, 1], evo_rates)
-    #plt.plot(expression_data, reg_model.predict(expression_data), color = 'blue')
-    plt.show()
-
+    flag = True
+    dropped = []
+    while flag:
+        user_inp = input("Command: ")
+        in_list = user_inp.replace(',','').split()
+        valid_commands = ["drop", "r2", "undrop", "only", "next"]
+        if in_list[0] not in valid_commands:
+            print("Not valid command.")
+        else:
+            # WILL REALLY NEED TO DO INPUT CHECKS
+            com = in_list[0].lower()
+            if com == "drop":
+                for i in range(1, len(in_list)):
+                    dropped.append(in_list[i])
+                    expression_columns.remove(in_list[i])
+                lin_model(full_data, expression_columns)
+            elif com == "r2":
+                pr_r2(indiv_r2, full_data, in_list[1])
+            elif com == "undrop":
+                for i in range(1, len(in_list)):
+                    expression_columns.append(in_list[i])
+                    dropped.remove(in_list[i])
+                lin_model(full_data, expression_columns)
+            elif com == "only":
+                lin_model(full_data, in_list[1:])
+            elif com == "next":
+                flag = False
+            print()
     ## Step 5: Decide what to do from here
 
-
-
-
+print("Program is over.")
+input("Press enter to exit. ")
