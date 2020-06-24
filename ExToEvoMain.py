@@ -7,17 +7,48 @@ import numpy as np
 #from keras.layers import Input, Dense
 #from keras.models import Model
 from sklearn import linear_model
-from sklearn.preprocessing import StandardScaler
+#from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
+#from mpl_toolkits import mplot3d
 import os
-import sys
 print("Done. Beginning program...")
 
 def pr_r2(in_r2, data, which):
     # That - 2 is because Gene Name and Evo Rate are at the beginning. Will likely
     # Have to debug
-    print(which, "R^2:", in_r2[data.columns.get_loc(which) - 2])
+    print("   ", which, "R^2: %1.4f" %(in_r2[data.columns.get_loc(which) - 2]))
+
+def pr_r2_all(in_r2, data):
+    cols = data.columns.copy()
+    cols = cols[2:]
+    zipped = zip(in_r2.copy(), cols)
+    sor = sorted(zipped)
+    sor.reverse()
+    print("R^2:")
+    for i in sor:
+        print("   %-23s %1.4f" %(i[1]+":", i[0]))
+
+def pr_coef_r2(coefficients, in_r2, data, cols):
+    zipped = zip(coefficients.copy(), cols.copy())
+    sor = sorted(zipped)
+    print("Coefficients and R^2: ")
+    for i in sor:
+        print("   %-22s coef: %1.4f; R^2: %1.4f" %(i[1], i[0], in_r2[data.columns.get_loc(i[1])-2]))
+    
+def pr_coef(coefficients, cols):
+    zipped = zip(coefficients.copy(), cols.copy())
+    sor = sorted(zipped)
+    print("Coefficients: ")
+    for i in sor:
+        print("   %-23s %1.4f" %(i[1]+":", i[0]))
+
+def highest_coef(num, coefficients, cols):
+    zipped = zip(coefficients.copy(), cols.copy())
+    sor = sorted(zipped)
+    toret = []
+    for i in range(num):
+        toret.append(sor[i][1])
+    return toret
 
 def lin_model(data, columns):
     expression_data = data[columns]
@@ -25,9 +56,9 @@ def lin_model(data, columns):
     reg_model = linear_model.LinearRegression()
     reg_model.fit(expression_data, evo_rates)
     print("R^2: ", reg_model.score(expression_data, evo_rates))
-    print("Intercept: ", reg_model.intercept_)
+    #print("Intercept: ", reg_model.intercept_)
     coef = reg_model.coef_
-    print("Coefficients: ", coef)
+    pr_coef(coef, columns)
     
     lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
     for i in range(1, len(columns)):
@@ -35,6 +66,8 @@ def lin_model(data, columns):
 
     plt.scatter(lin_comb, evo_rates, color = 'red')
     plt.show()
+    
+    return (coef, columns)
 
 
 """
@@ -44,11 +77,16 @@ Program notes:
    based on the list right below program notes
 """
 # List of all species that we have. May change.
-species_names = ["Testing"]
+species_names = ["Escherichia_coli"]
+
+# Get the full path before jumping into species
+cur_path = os.getcwd()
 
 # Go through all species
 for species_name in species_names:
+    print()
     print("Current species:", species_name)
+    
     ## Step 1: Obtain data
     """
     Step 1 Notes:
@@ -56,7 +94,6 @@ for species_name in species_names:
     """
 
     # Get the current path and create the full path
-    cur_path = os.getcwd()
     full_path = cur_path + "/" + species_name
 
     # If path does not exist, raise an exception. Else, change the path
@@ -89,43 +126,41 @@ for species_name in species_names:
     ## Step 3.1: Process data
     """
     Step 3 Notes:
-     - Should I drop rows with null values? (data.dropna() if yes)
-     - What do I do with 0 values when logging?
-         - Add an epsilon ep = lowest expression that isn't 0
-     - How to normalize properly
     """
     len_bef = len(full_data)
     
     expression_columns = []
     full_data.dropna(inplace = True)
     num_expression_columns = 0
-    ss = StandardScaler()
+    #ss = StandardScaler()
     
     for i in list(full_data):
         if i != "Gene Name":
             if i != "Evo Rate":
                     expression_columns.append(i)
                     num_expression_columns += 1
-            # This entire section may be unecessary
-            full_data = full_data[full_data[i] != 0]
-            full_data[i] = np.log(full_data[i])
-            
+            # This section log's it if necessary
+            #full_data = full_data[full_data[i] != 0]
+            #full_data[i] = np.log(full_data[i])
+
             # Rank data here
+            full_data[i] = full_data[i].rank()
             
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
-    if float(len_bef-len_aft)/float(len_aft) > 0.01:
-        print("Warning: more than 1% of your data has been dropped.")
+    if float(len_bef-len_aft)/float(len_aft) > 0.05:
+        print("Warning: around", 100*(len_bef-len_aft)/len_aft, "percent of your data has been dropped.")
         input()
     else:
         print("Dropped rows within acceptable parameters.")
-    print()
+        print()
     print("Processed data head: ")
     print(full_data.head(8))
-
+    print()
+    
     ## Step 4: Create a full linear regression model  
     print("Full model:")
-    lin_model(full_data, expression_columns)
+    cur_model = lin_model(full_data, expression_columns)
     expression_data = full_data[expression_columns]
     evo_rates = full_data["Evo Rate"]
     indiv_r2 = []
@@ -134,40 +169,66 @@ for species_name in species_names:
         r.fit(expression_data.iloc[:, [i]], evo_rates)
         indiv_r2.append(r.score(expression_data.iloc[:, [i]], evo_rates))
     print()
-    for i in full_data.columns:
-        # This may have to be debugged later
-        if not (i == "Gene Name" or i == "Evo Rate"):
-            pr_r2(indiv_r2, full_data, i)
-    input()
+
+    # Edit the commands later
+    print("Commands: drop __, __, ...; undrop __, __, ...; only __, __, ...; r2 __; next")
     flag = True
     dropped = []
     while flag:
         user_inp = input("Command: ")
         in_list = user_inp.replace(',','').split()
-        valid_commands = ["drop", "r2", "undrop", "only", "next"]
-        if in_list[0] not in valid_commands:
+        valid_commands = ["drop", "r2", "undrop", "only", "next", "pr", "save", "highest"]
+        if in_list[0].lower() not in valid_commands:
             print("Not valid command.")
         else:
-            # WILL REALLY NEED TO DO INPUT CHECKS
-            com = in_list[0].lower()
-            if com == "drop":
-                for i in range(1, len(in_list)):
-                    dropped.append(in_list[i])
-                    expression_columns.remove(in_list[i])
-                lin_model(full_data, expression_columns)
-            elif com == "r2":
-                pr_r2(indiv_r2, full_data, in_list[1])
-            elif com == "undrop":
-                for i in range(1, len(in_list)):
-                    expression_columns.append(in_list[i])
-                    dropped.remove(in_list[i])
-                lin_model(full_data, expression_columns)
-            elif com == "only":
-                lin_model(full_data, in_list[1:])
-            elif com == "next":
+            if in_list[0].lower() == "next":
                 flag = False
-            print()
+            elif in_list[0].lower() == "r2" and in_list[1].lower() == "all":
+                pr_r2_all(indiv_r2, full_data)
+            elif in_list[0].lower() == "pr":
+                if in_list[1].lower() == "coef":
+                    pr_coef(cur_model[0], cur_model[1])
+                elif in_list[1].lower() == "r2":
+                    for i in cur_model[1]:
+                        pr_r2(indiv_r2, full_data, i)
+                elif in_list[1].lower() == "coef_r2":
+                    pr_coef_r2(cur_model[0], indiv_r2, full_data, cur_model[1])
+            elif in_list[0].lower() == "highest":
+                cols = highest_coef(int(in_list[1]), cur_model[0], cur_model[1])
+                cur_model = lin_model(full_data, cols)
+            else:
+                # Checks if all inputs are okay
+                good_input = True
+                for i in range(1, len(in_list)):
+                    in_list[i] = in_list[i].replace("_", " ")
+                    if not in_list[i] in full_data.columns:
+                        good_input = False
+                # If the input is fine, contiue
+                if good_input:
+                    com = in_list[0].lower()
+                    if com == "drop":
+                        for i in range(1, len(in_list)):
+                            dropped.append(in_list[i])
+                            expression_columns.remove(in_list[i])
+                        cur_model = lin_model(full_data, expression_columns)
+                    elif com == "r2":
+                        for i in range(1, len(in_list)):
+                            pr_r2(indiv_r2, full_data, in_list[i])
+                    elif com == "undrop":
+                        for i in range(1, len(in_list)):
+                            expression_columns.append(in_list[i])
+                            dropped.remove(in_list[i])
+                        cur_model = lin_model(full_data, expression_columns)
+                    elif com == "only":
+                        cur_model = lin_model(full_data, in_list[1:])
+                    
+                    else:
+                        print("Command", com, "is incomplete.")
+                else:
+                    print("Not valid inputs.")
+        print()
     ## Step 5: Decide what to do from here
-
+    print()
+    print()
 print("Program is over.")
 input("Press enter to exit. ")
