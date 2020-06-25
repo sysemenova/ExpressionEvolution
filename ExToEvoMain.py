@@ -3,14 +3,19 @@
 ## Step 0: Import necessary libraries
 print("Downloading libraires...")
 import pandas as pd
+print("Pandas... ", end = '')
 import numpy as np
+print("NumPy... ", end = '')
 #from keras.layers import Input, Dense
 #from keras.models import Model
 from sklearn import linear_model
+print("SKLearn... ", end = '')
 #from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+print("MatPlotLib... ", end = '')
 #from mpl_toolkits import mplot3d
 import os
+print("OS... ")
 print("Done. Beginning program...")
 
 def pr_r2(in_r2, data, which):
@@ -56,10 +61,12 @@ def lin_model(data, columns):
     reg_model = linear_model.LinearRegression()
     reg_model.fit(expression_data, evo_rates)
     print("R^2: ", reg_model.score(expression_data, evo_rates))
+    # Currently not showing intercept due to its relative unimportance
     #print("Intercept: ", reg_model.intercept_)
     coef = reg_model.coef_
     pr_coef(coef, columns)
-    
+
+    # Create the linear combination and plot it
     lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
     for i in range(1, len(columns)):
         lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
@@ -72,11 +79,9 @@ def lin_model(data, columns):
 
 """
 Program notes:
- - May change this to a loop that goes through all folders in
-   this directory. The current structure goes through species
-   based on the list right below program notes
 """
-# List of all species that we have. May change.
+# List of all species that we have. May change to going through all folders
+# marked with something (so Images isn't gone through.)
 species_names = ["Escherichia_coli"]
 
 # Get the full path before jumping into species
@@ -90,7 +95,8 @@ for species_name in species_names:
     ## Step 1: Obtain data
     """
     Step 1 Notes:
-     - Will have to calculate the evolution rates in this step
+     - Will have to calculate the evolution rates in this step for some
+       species.
     """
 
     # Get the current path and create the full path
@@ -115,8 +121,7 @@ for species_name in species_names:
     ## Step 2: Combine data
     """
     Step 2 Notes:
-     - Figure out a way to merge just based on first column, or ensure that
-       all first columns are named the same thing.
+     - All datasets must have a column named "Gene Name"
     """
     # Merge all datasets by their column named "Gene Name"
     full_data = data["0"]
@@ -128,12 +133,10 @@ for species_name in species_names:
     Step 3 Notes:
     """
     len_bef = len(full_data)
-    
+    print(len_bef)
     expression_columns = []
     full_data.dropna(inplace = True)
     num_expression_columns = 0
-    #ss = StandardScaler()
-    
     for i in list(full_data):
         if i != "Gene Name":
             if i != "Evo Rate":
@@ -148,8 +151,8 @@ for species_name in species_names:
             
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
-    if float(len_bef-len_aft)/float(len_aft) > 0.05:
-        print("Warning: around", 100*(len_bef-len_aft)/len_aft, "percent of your data has been dropped.")
+    if float(len_bef-len_aft)/float(len_bef) > 0.05:
+        print("Warning: around", 100*(len_bef-len_aft)/len_bef, "percent of your data has been dropped.")
         input()
     else:
         print("Dropped rows within acceptable parameters.")
@@ -161,6 +164,8 @@ for species_name in species_names:
     ## Step 4: Create a full linear regression model  
     print("Full model:")
     cur_model = lin_model(full_data, expression_columns)
+    # Create all of the individual r^2
+    # May edit to make the indiv_r2 a dictionary instead of a list
     expression_data = full_data[expression_columns]
     evo_rates = full_data["Evo Rate"]
     indiv_r2 = []
@@ -171,15 +176,15 @@ for species_name in species_names:
     print()
 
     # Edit the commands later
-    print("Commands: drop __, __, ...; undrop __, __, ...; only __, __, ...; r2 __; next")
+    print("Commands: drop, undrop, full, only, r2, next, pr, highest, save, help.")
     flag = True
     dropped = []
     while flag:
         user_inp = input("Command: ")
         in_list = user_inp.replace(',','').split()
-        valid_commands = ["drop", "r2", "undrop", "only", "next", "pr", "save", "highest"]
+        valid_commands = ["drop", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
         if in_list[0].lower() not in valid_commands:
-            print("Not valid command.")
+            print("Invalid command.")
         else:
             if in_list[0].lower() == "next":
                 flag = False
@@ -193,39 +198,51 @@ for species_name in species_names:
                         pr_r2(indiv_r2, full_data, i)
                 elif in_list[1].lower() == "coef_r2":
                     pr_coef_r2(cur_model[0], indiv_r2, full_data, cur_model[1])
+                else:
+                    print(in_list[1], "is not a valid print statement.")
             elif in_list[0].lower() == "highest":
                 cols = highest_coef(int(in_list[1]), cur_model[0], cur_model[1])
+                cur_model = lin_model(full_data, cols)
+            elif in_list[0].lower() == "help":
+                print("Help currently unavailable.")
+            elif in_list[0].lower() == "save":
+                print("Save currently unavailable.")
+            elif in_list[0].lower() == "full":
+                cols = expression_columns.copy()
                 cur_model = lin_model(full_data, cols)
             else:
                 # Checks if all inputs are okay
                 good_input = True
                 for i in range(1, len(in_list)):
                     in_list[i] = in_list[i].replace("_", " ")
-                    if not in_list[i] in full_data.columns:
+                    if not in_list[i] in expression_columns:
+                        # RIGHT HERE: CHECK CAPITALIZATION
+                        # Note: whatever gets here won't go through the commands
                         good_input = False
                 # If the input is fine, contiue
                 if good_input:
+                    # Note: no danger of key errors
                     com = in_list[0].lower()
                     if com == "drop":
+                        cols = cur_model[1].copy()
                         for i in range(1, len(in_list)):
-                            dropped.append(in_list[i])
-                            expression_columns.remove(in_list[i])
-                        cur_model = lin_model(full_data, expression_columns)
+                            cols.remove(in_list[i])
+                        cur_model = lin_model(full_data, cols)
                     elif com == "r2":
                         for i in range(1, len(in_list)):
                             pr_r2(indiv_r2, full_data, in_list[i])
                     elif com == "undrop":
+                        cols = cur_model[1].copy()
                         for i in range(1, len(in_list)):
-                            expression_columns.append(in_list[i])
-                            dropped.remove(in_list[i])
-                        cur_model = lin_model(full_data, expression_columns)
+                            cols.append(in_list[i])
+                        cur_model = lin_model(full_data, cols)
                     elif com == "only":
                         cur_model = lin_model(full_data, in_list[1:])
                     
                     else:
-                        print("Command", com, "is incomplete.")
+                        print("Command", com, "is unavailable.")
                 else:
-                    print("Not valid inputs.")
+                    print("Invalid inputs.")
         print()
     ## Step 5: Decide what to do from here
     print()
