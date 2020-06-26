@@ -2,20 +2,24 @@
 
 ## Step 0: Import necessary libraries
 print("Downloading libraires...")
-import pandas as pd
 print("Pandas... ", end = '')
-import numpy as np
+import pandas as pd
 print("NumPy... ", end = '')
+import numpy as np
 #from keras.layers import Input, Dense
 #from keras.models import Model
-from sklearn import linear_model
 print("SKLearn... ", end = '')
+from sklearn import linear_model
+print("SciPy... ", end = '')
+from scipy.optimize import lsq_linear
+from scipy import stats
 #from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
 print("MatPlotLib... ", end = '')
+import matplotlib.pyplot as plt
 #from mpl_toolkits import mplot3d
-import os
 print("OS... ")
+import os
+
 print("Done. Beginning program...")
 
 def pr_r2(in_r2, data, which):
@@ -45,7 +49,7 @@ def pr_coef(coefficients, cols):
     sor = sorted(zipped)
     print("Coefficients: ")
     for i in sor:
-        print("   %-23s %1.4f" %(i[1]+":", i[0]))
+        print("   %-23s %1.8f" %(i[1]+":", i[0]))
 
 def highest_coef(num, coefficients, cols):
     zipped = zip(coefficients.copy(), cols.copy())
@@ -55,14 +59,21 @@ def highest_coef(num, coefficients, cols):
         toret.append(sor[i][1])
     return toret
 
-def lin_model(data, columns):
+def lin_model(data, columns, alph = 1.0):
     expression_data = data[columns]
     evo_rates = data["Evo Rate"]
+        
+    reg_model = linear_model.Ridge(alpha = alph)
+    reg_model.fit(expression_data, evo_rates)
+    print("---RIDGE---")
+    print("R^2: ", reg_model.score(expression_data, evo_rates))
+    coef = reg_model.coef_
+    pr_coef(coef, columns)
+    
     reg_model = linear_model.LinearRegression()
     reg_model.fit(expression_data, evo_rates)
+    print("---LINEAR REGRESSION---")
     print("R^2: ", reg_model.score(expression_data, evo_rates))
-    # Currently not showing intercept due to its relative unimportance
-    #print("Intercept: ", reg_model.intercept_)
     coef = reg_model.coef_
     pr_coef(coef, columns)
 
@@ -76,6 +87,12 @@ def lin_model(data, columns):
     
     return (coef, columns)
 
+def partial(data, x1, x2, x3):
+    r12 = stats.pearsonr(data[x1], data[x2])[0]
+    r13 = stats.pearsonr(data[x1], data[x3])[0]
+    r23 = stats.pearsonr(data[x2], data[x3])[0]
+    r123 = (r12-r13*r23)/np.sqrt((1-r13*r13)*(1-r23*r23))
+    return r123
 
 """
 Program notes:
@@ -176,13 +193,13 @@ for species_name in species_names:
     print()
 
     # Edit the commands later
-    print("Commands: drop, undrop, full, only, r2, next, pr, highest, save, help.")
+    print("Commands: next, drop, undrop, full, only, highest, alpha, partial, r2, pr, save, help.")
     flag = True
     dropped = []
     while flag:
         user_inp = input("Command: ")
         in_list = user_inp.replace(',','').split()
-        valid_commands = ["drop", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
+        valid_commands = ["drop","alpha", "partial", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
         if in_list[0].lower() not in valid_commands:
             print("Invalid command.")
         else:
@@ -207,6 +224,8 @@ for species_name in species_names:
                 print("Help currently unavailable.")
             elif in_list[0].lower() == "save":
                 print("Save currently unavailable.")
+            elif in_list[0].lower() == "alpha":
+                cur_model = lin_model(full_data, cur_model[1], float(in_list[1]))
             elif in_list[0].lower() == "full":
                 cols = expression_columns.copy()
                 cur_model = lin_model(full_data, cols)
@@ -238,7 +257,8 @@ for species_name in species_names:
                         cur_model = lin_model(full_data, cols)
                     elif com == "only":
                         cur_model = lin_model(full_data, in_list[1:])
-                    
+                    elif com == "partial":
+                        print("Partial correlation:", partial(full_data, "Evo Rate", in_list[1], in_list[2]))
                     else:
                         print("Command", com, "is unavailable.")
                 else:
