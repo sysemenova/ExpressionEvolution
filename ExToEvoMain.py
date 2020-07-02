@@ -10,6 +10,7 @@ import numpy as np
 #from keras.models import Model
 print("SKLearn... ", end = '')
 from sklearn import linear_model
+from sklearn import metrics
 print("SciPy... ", end = '')
 from scipy.optimize import lsq_linear
 from scipy import stats
@@ -25,7 +26,7 @@ print("Done. Beginning program...")
 def pr_r2(in_r2, data, which):
     # That - 2 is because Gene Name and Evo Rate are at the beginning. Will likely
     # Have to debug
-    print("   ", which, "R^2: %1.4f" %(in_r2[data.columns.get_loc(which) - 2]))
+    print(" ", which, "R: %1.4f, p-val: %1.4f" %(in_r2[data.columns.get_loc(which) - 2][0], in_r2[data.columns.get_loc(which) - 2][1]))
 
 def pr_r2_all(in_r2, data):
     cols = data.columns.copy()
@@ -33,16 +34,16 @@ def pr_r2_all(in_r2, data):
     zipped = zip(in_r2.copy(), cols)
     sor = sorted(zipped)
     sor.reverse()
-    print("R^2:")
+    print("R and p-val:")
     for i in sor:
-        print("   %-23s %1.4f" %(i[1]+":", i[0]))
+        print("   %-23s %1.4f, %1.4f" %(i[1]+":", i[0][0], i[0][1]))
 
 def pr_coef_r2(coefficients, in_r2, data, cols):
     zipped = zip(coefficients.copy(), cols.copy())
     sor = sorted(zipped)
-    print("Coefficients and R^2: ")
-    for i in sor:
-        print("   %-22s coef: %1.4f; R^2: %1.4f" %(i[1], i[0], in_r2[data.columns.get_loc(i[1])-2]))
+    print("Coefficients and R: ")
+    for i in sor:        
+        print("   %-22s coef: %1.4f; R: %1.4f, p-val: %1.4f" %(i[1], i[0], in_r2[data.columns.get_loc(i[1])-2][0],in_r2[data.columns.get_loc(i[1])-2][1]))
     
 def pr_coef(coefficients, cols):
     zipped = zip(coefficients.copy(), cols.copy())
@@ -62,17 +63,18 @@ def highest_coef(num, coefficients, cols):
 def lin_model(data, columns, alph = 1.0):
     expression_data = data[columns]
     evo_rates = data["Evo Rate"]
-        
-    reg_model = linear_model.Ridge(alpha = alph)
-    reg_model.fit(expression_data, evo_rates)
-    print("---RIDGE---")
-    print("R^2: ", reg_model.score(expression_data, evo_rates))
-    coef = reg_model.coef_
-    pr_coef(coef, columns)
     
     reg_model = linear_model.LinearRegression()
     reg_model.fit(expression_data, evo_rates)
     print("---LINEAR REGRESSION---")
+    print("R^2: ", reg_model.score(expression_data, evo_rates))
+    coef = reg_model.coef_
+    pred = reg_model.predict(data[columns])
+    pr_coef(coef, columns)
+
+    reg_model = linear_model.Ridge(alpha = alph)
+    reg_model.fit(expression_data, evo_rates)
+    print("---RIDGE---")
     print("R^2: ", reg_model.score(expression_data, evo_rates))
     coef = reg_model.coef_
     pr_coef(coef, columns)
@@ -82,10 +84,10 @@ def lin_model(data, columns, alph = 1.0):
     for i in range(1, len(columns)):
         lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
 
-    plt.scatter(lin_comb, evo_rates, color = 'red')
-    plt.show()
+    #plt.scatter(lin_comb, evo_rates, color = 'red')
+    #plt.show()
     
-    return (coef, columns)
+    return (coef, columns, pred)
 
 def partial(data, x1, x2, x3):
     r12 = stats.pearsonr(data[x1], data[x2])[0]
@@ -186,10 +188,9 @@ for species_name in species_names:
     expression_data = full_data[expression_columns]
     evo_rates = full_data["Evo Rate"]
     indiv_r2 = []
-    for i in range(0, num_expression_columns):
-        r = linear_model.LinearRegression()
-        r.fit(expression_data.iloc[:, [i]], evo_rates)
-        indiv_r2.append(r.score(expression_data.iloc[:, [i]], evo_rates))
+    for i in expression_columns:
+        r = stats.pearsonr(full_data[i], evo_rates)
+        indiv_r2.append(r)
     print()
 
     # Edit the commands later
@@ -225,7 +226,18 @@ for species_name in species_names:
             elif in_list[0].lower() == "save":
                 print("Save currently unavailable.")
             elif in_list[0].lower() == "alpha":
-                cur_model = lin_model(full_data, cur_model[1], float(in_list[1]))
+                if in_list[1].lower() == "tune":
+                    y_pred = cur_model[2]
+                    se = metrics.mean_squared_error(y_pred, evo_rates) * len(y_pred)
+                    print("Squared error:", se)
+                    if len(in_list) == 2:
+                        alph = 0.01*se
+                    else:
+                        tuner = float(in_list[2])
+                        alph = tuner*se
+                    cur_model = lin_model(full_data, cur_model[1], alph)
+                else:
+                    cur_model = lin_model(full_data, cur_model[1], float(in_list[1]))
             elif in_list[0].lower() == "full":
                 cols = expression_columns.copy()
                 cur_model = lin_model(full_data, cols)
@@ -234,7 +246,7 @@ for species_name in species_names:
                 good_input = True
                 for i in range(1, len(in_list)):
                     in_list[i] = in_list[i].replace("_", " ")
-                    if not in_list[i] in expression_columns:
+                    if not in_list[i] in expression_columns and in_list[i] != "all":
                         # RIGHT HERE: CHECK CAPITALIZATION
                         # Note: whatever gets here won't go through the commands
                         good_input = False
@@ -258,7 +270,26 @@ for species_name in species_names:
                     elif com == "only":
                         cur_model = lin_model(full_data, in_list[1:])
                     elif com == "partial":
-                        print("Partial correlation:", partial(full_data, "Evo Rate", in_list[1], in_list[2]))
+                        if in_list[1].lower() == "all":
+                            partls = pd.DataFrame()
+                            pd.set_option("display.max_rows", None, "display.max_columns", None)
+                            partls["Accounted for"] = expression_columns.copy()
+                            for cur in expression_columns:
+                                temp = []
+                                for acc in expression_columns:
+                                    if acc != cur:
+                                        temp.append(partial(full_data, "Evo Rate", cur, acc))
+                                    else:
+                                        temp.append(0)
+                                partls[cur] = temp
+                            print(partls)
+                        elif in_list[2].lower() == "all":
+                            print("Partial correlations for", in_list[1])
+                            for i in expression_columns:
+                                if i != in_list[1]:
+                                    print("   %-23s %1.4f" %(i+":", partial(full_data, "Evo Rate", in_list[1], i)))
+                        else:
+                            print("Partial correlation:", partial(full_data, "Evo Rate", in_list[1], in_list[2]))
                     else:
                         print("Command", com, "is unavailable.")
                 else:
