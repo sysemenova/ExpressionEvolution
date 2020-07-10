@@ -6,26 +6,24 @@ print("Pandas... ", end = '')
 import pandas as pd
 print("NumPy... ", end = '')
 import numpy as np
-#from keras.layers import Input, Dense
-#from keras.models import Model
 print("SKLearn... ", end = '')
 from sklearn import linear_model
 from sklearn import metrics
 print("SciPy... ", end = '')
 from scipy.optimize import lsq_linear
 from scipy import stats
-#from sklearn.preprocessing import StandardScaler
 print("MatPlotLib... ", end = '')
 import matplotlib.pyplot as plt
-#from mpl_toolkits import mplot3d
 print("OS... ")
 import os
 
 print("Done. Beginning program...")
 
+evo_rate_name = "Evo Rate"
+
 def pr_r2(in_r2, data, which):
     # That - 2 is because Gene Name and Evo Rate are at the beginning. Will likely
-    # Have to debug
+    # have to debug
     print(" ", which, "R: %1.4f, p-val: %1.4f" %(in_r2[data.columns.get_loc(which) - 2][0], in_r2[data.columns.get_loc(which) - 2][1]))
 
 def pr_r2_all(in_r2, data):
@@ -62,7 +60,7 @@ def highest_coef(num, coefficients, cols):
 
 def lin_model(data, columns, alph = 1.0):
     expression_data = data[columns]
-    evo_rates = data["Evo Rate"]
+    evo_rates = data[evo_rate_name]
     
     reg_model = linear_model.LinearRegression()
     reg_model.fit(expression_data, evo_rates)
@@ -101,7 +99,7 @@ Program notes:
 """
 # List of all species that we have. May change to going through all folders
 # marked with something (so Images isn't gone through.)
-species_names = ["Escherichia_coli"]
+species_names = ["Escherichia_coli_REL606"]
 
 # Get the full path before jumping into species
 cur_path = os.getcwd()
@@ -131,7 +129,9 @@ for species_name in species_names:
     data = {}
     i = 0
     for filename in os.listdir():
-        if filename.endswith(".csv"):
+        print(filename)
+        if filename.endswith(".csv") and filename[0:2] != "NO":
+            print(filename)
             data[str(i)] = pd.read_csv(filename)
             i += 1
     num_datasets = i
@@ -158,7 +158,7 @@ for species_name in species_names:
     num_expression_columns = 0
     for i in list(full_data):
         if i != "Gene Name":
-            if i != "Evo Rate":
+            if i != evo_rate_name:
                     expression_columns.append(i)
                     num_expression_columns += 1
             # This section log's it if necessary
@@ -190,6 +190,7 @@ for species_name in species_names:
     indiv_r2 = []
     for i in expression_columns:
         r = stats.pearsonr(full_data[i], evo_rates)
+        #print(i, r)
         indiv_r2.append(r)
     print()
 
@@ -224,7 +225,15 @@ for species_name in species_names:
             elif in_list[0].lower() == "help":
                 print("Help currently unavailable.")
             elif in_list[0].lower() == "save":
-                print("Save currently unavailable.")
+                if in_list[1].lower() == "r2":
+                    r2 = pd.DataFrame()
+                    r2s = []
+                    for i in indiv_r2:
+                        r2s.append(i[0])
+                    r2["Conditions"] = expression_columns.copy()
+                    r2["R2s"] = r2s
+                    user_file = input("Name the file (with .csv): ")
+                    r2.to_csv(user_file)
             elif in_list[0].lower() == "alpha":
                 if in_list[1].lower() == "tune":
                     y_pred = cur_model[2]
@@ -245,11 +254,13 @@ for species_name in species_names:
                 # Checks if all inputs are okay
                 good_input = True
                 for i in range(1, len(in_list)):
-                    in_list[i] = in_list[i].replace("_", " ")
+                    
                     if not in_list[i] in expression_columns and in_list[i] != "all":
                         # RIGHT HERE: CHECK CAPITALIZATION
                         # Note: whatever gets here won't go through the commands
-                        good_input = False
+                        in_list[i] = in_list[i].replace("_", " ")
+                        if not in_list[i] in expression_columns and in_list[i] != "all":
+                            good_input = False
                 # If the input is fine, contiue
                 if good_input:
                     # Note: no danger of key errors
@@ -278,18 +289,19 @@ for species_name in species_names:
                                 temp = []
                                 for acc in expression_columns:
                                     if acc != cur:
-                                        temp.append(partial(full_data, "Evo Rate", cur, acc))
+                                        temp.append(partial(full_data, evo_rate_name, cur, acc))
                                     else:
                                         temp.append(0)
                                 partls[cur] = temp
                             print(partls)
+                            #partls.to_csv('partials.csv')
                         elif in_list[2].lower() == "all":
                             print("Partial correlations for", in_list[1])
                             for i in expression_columns:
                                 if i != in_list[1]:
-                                    print("   %-23s %1.4f" %(i+":", partial(full_data, "Evo Rate", in_list[1], i)))
+                                    print("   %-23s %1.4f" %(i+":", partial(full_data, evo_rate_name, in_list[1], i)))
                         else:
-                            print("Partial correlation:", partial(full_data, "Evo Rate", in_list[1], in_list[2]))
+                            print("Partial correlation:", partial(full_data, evo_rate_name, in_list[1], in_list[2]))
                     else:
                         print("Command", com, "is unavailable.")
                 else:
