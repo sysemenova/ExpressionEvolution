@@ -201,7 +201,7 @@ for species_name in species_names:
     while flag:
         user_inp = input("Command: ")
         in_list = user_inp.replace(',','').split()
-        valid_commands = ["drop","alpha", "partial", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
+        valid_commands = ["drop","alpha", "compare_to", "partial", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
         if in_list[0].lower() not in valid_commands:
             print("Invalid command.")
         else:
@@ -270,6 +270,18 @@ for species_name in species_names:
                         for i in range(1, len(in_list)):
                             cols.remove(in_list[i])
                         cur_model = lin_model(full_data, cols)
+                    elif com == "compare_to":
+                        comp_cond = in_list[1]
+                        # dist = np.linalg.norm(a-b)
+                        toret = pd.DataFrame()
+                        temp = []
+                        for i in expression_columns:
+                            temp.append(np.linalg.norm(full_data[comp_cond]-full_data[i]))
+                        user_file = input("Name of file (with .csv please): ")
+                        toret["Conditions"] = expression_columns
+                        name = "Similarity to " + comp_cond
+                        toret[name] = temp
+                        toret.to_csv(user_file)
                     elif com == "r2":
                         for i in range(1, len(in_list)):
                             pr_r2(indiv_r2, full_data, in_list[i])
