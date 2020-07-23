@@ -146,7 +146,14 @@ for species_name in species_names:
     full_data = data["0"]
     for i in range(1, num_datasets):
         full_data = pd.merge(full_data, data[str(i)], how = "outer", on = "Gene Name")
-        
+
+    if evo_rate_name not in full_data.columns:
+        print("This program is about to crash because there is no column titled", evo_rate_name)
+    else:
+        print("No crash necessary.")
+        colsies = [evo_rate_name] + [col for col in full_data if col != evo_rate_name]
+        full_data = full_data[colsies]
+        print("Order changed successfully.")
     ## Step 3.1: Process data
     """
     Step 3 Notes:
@@ -156,6 +163,7 @@ for species_name in species_names:
     expression_columns = []
     full_data.dropna(inplace = True)
     num_expression_columns = 0
+    print(full_data.head(5))
     for i in list(full_data):
         if i != "Gene Name":
             if i != evo_rate_name:
@@ -167,7 +175,55 @@ for species_name in species_names:
 
             # Rank data here
             full_data[i] = full_data[i].rank()
+
+
+
+    # AVERAGING DATA -- COMMENT OUT IF UNNECESSARY
+    av = False
+    if species_name == "Escherichia_coli_REL606" and av:
+        conds = {
+            "gluc3": ["glucose_3", "glucose_3.1"],
+            "gluc4": ["glucose_4", "glucose_4.1"],
+            "gluc5": ["glucose_5", "glucose_5.1"],
+            "gluc6": ["glucose_6", "glucose_6.1"],
+            "gluc8": ["glucose_8", "glucose_8.1"],
+            "gluc24": ["glucose_24", "glucose_24.1"],
+            "gluc48": ["glucose_48", "glucose_48.1"],
+            "gluc168": ["glucose_168", "glucose_168.1"],
+            "gluc336": ["glucose_336", "glucose_336.1"],
+            "glycexp": ["glycerol_5", "glycerol_7", "glycerol_8", "glycerol_10", "glycerol_14",
+                        "glycerol_5.1", "glycerol_7.1", "glycerol_8.1", "glycerol_10.1", "glycerol_14.1",
+                        "glycerol_5.2", "glycerol_7.2", "glycerol_8.2", "glycerol_10.2", "glycerol_14.2"],
+            "glycsta":["glycerol_24", "glycerol_48", "glycerol_168", "glycerol_336",
+                       "glycerol_24.1", "glycerol_48.1", "glycerol_168.1", "glycerol_336.1",
+                       "glycerol_24.2", "glycerol_48.2", "glycerol_168.2"],
+            "nacl_5_exp": ["glucose_5.5", "glucose_6.2", "glucose_5.5.1"],
+            "nacl_5_sta": ["glucose_29", "glucose_28", "glucose_29.1"],
+            "nacl_100_exp": ["nacl_100_6.5"],
+            "nacl_200_exp": ["nacl_200_6", "nacl_200_8", "nacl_200_8.1"],
+            "nacl_300_exp": ["nacl_300_8", "nacl_300_10", "nacl_300_10.1"],
+            "nacl_100_sta": ["nacl_100_28", "nacl_100_29", "nacl_100_29.1"],
+            "nacl_200_sta": ["nacl_200_28", "nacl_200_29", "nacl_200_29.1"],
+            "nacl_300_sta": ["nacl_300_28", "nacl_300_29", "nacl_300_29.1"]}
             
+
+            
+        only_expression = full_data[expression_columns]
+        # Note: axis = 1 makes it by columns.
+        only_expression = only_expression.groupby(expression_columns, axis = 1).agg(np.average)
+        expression_columns = only_expression.columns
+        print(only_expression.head(8))
+        print(expression_columns)
+        only_expression["Gene Name"] = full_data["Gene Name"]
+        only_expression["Evo Rate"] = full_data["Evo Rate"]
+        full_data = only_expression
+        # Reorder
+        colsies = [evo_rate_name, "Gene Name"] + [col for col in full_data if col != evo_rate_name and col != "Gene Name"]
+        full_data = full_data[colsies]
+    # THAT'S IT LETS HOP IT WORKS
+
+
+    
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
     if float(len_bef-len_aft)/float(len_bef) > 0.05:

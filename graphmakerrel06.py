@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 os.chdir("C:\\Users\\visitor\\Documents\\ExLinComb")
 wow = pd.read_csv("rel06r2cs.csv")
 
@@ -17,6 +18,33 @@ if yes:
     ax.set_title("MgSO4: Time vs R")
     plt.show()
 
+# Similarity to glucose vs r with concentration as color
+yes = False
+if yes:
+    fig, ax = plt.subplots()
+    tempConcentration = np.log(wow["Concentration"])
+    scatter = ax.scatter(wow["Similarity to glucose_4"], wow["Mgso4 r2"], c = tempConcentration)
+    handles, labels = scatter.legend_elements(prop = "colors")
+    legend2 = ax.legend(handles, labels, title = "Concentration")
+    ax.set_ylabel("R value")
+    ax.set_xlabel("Similarity to glucose_4")
+    ax.set_title("MgSO4: Similarity to glucose vs r (with concentration)")
+    plt.show()
+    
+# Similarity to glucose vs concentraton with batch as color (copy of Dinara's plots)
+yes = True
+if yes:
+    fig, ax = plt.subplots()
+    temp = wow[wow["Type"] == "mgso4"]
+    scatter = ax.scatter(temp["Concentration"], temp["Similarity to glucose_4"], c = temp["Batch"])
+    handles, labels = scatter.legend_elements(prop = "colors")
+    legend2 = ax.legend(handles, labels, title = "Batch")
+    ax.set_xlabel("Concentration")
+    
+    ax.set_ylabel("Similarity to glucose_4")
+    ax.set_title("MgSO4: Similarity to glucose vs concentration (with batch number)")
+    plt.show()
+    
 # Concentration vs r with time as color
 yes = False
 if yes:
@@ -27,6 +55,19 @@ if yes:
     ax.set_ylabel("R value")
     ax.set_xlabel("Concentration (mM)")
     ax.set_title("MgSO4: Concentration vs R")
+    plt.show()
+
+# NACL
+yes = False
+if yes:
+    fig, ax = plt.subplots()
+    onlyNacl = wow[wow["Type"] == "nacl"]
+    scatter = ax.scatter(onlyNacl["Growth Time"], onlyNacl["R2s"], c = onlyNacl["Concentration"])
+    handles, labels = scatter.legend_elements(prop = "colors", alpha = 0.6)
+    legend2 = ax.legend(handles, labels, title = "Concentration")
+    ax.set_ylabel("R value")
+    ax.set_xlabel("Growth Time (h)")
+    ax.set_title("NaCl: Time vs R")
     plt.show()
 
 # ALL
@@ -45,6 +86,53 @@ if yes:
     ax.set_title("Growth Time vs R")
     plt.show()
 
+# Time vs r with type as color. But each gets their own subplot
+yes = False
+if yes:
+    colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
+    fig, axs = plt.subplots(3, 2, sharex = True, sharey = True)
+    
+    grpd = wow.groupby("Type")
+    x = 0
+    y = 0
+    for name, data in grpd:
+        axs[x, y].scatter(data["Growth Time"], data["R2s"], c = colors[name])
+        axs[x, y].set_ylabel("R value")
+        axs[x, y].set_xlabel("Growth Time (h)")
+        axs[x, y].set_xscale("log")
+        title = "Growth time vs R: " + name
+        axs[x, y].set_title(title)
+        x += 1
+        if x == 3:
+            x = 0
+            y = 1
+    
+    plt.show()
+    
+# Time vs r with type as color and batch as color
+yes = False
+if yes:
+    colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
+    fig, axs = plt.subplots(3, 2, sharex = True, sharey = True)
+    
+    grpd = wow.groupby("Type")
+    x = 0
+    y = 0
+    for name, data in grpd:
+        scatter = axs[x, y].scatter(data["Growth Time"], data["R2s"], c = data["Batch"])
+        handles, labels = scatter.legend_elements(prop = "colors")
+        legend2 = axs[x, y].legend(handles, labels, title = "Batch number")
+        axs[x, y].set_ylabel("R value")
+        axs[x, y].set_xlabel("Growth Time (h)")
+        axs[x, y].set_xscale("log")
+        title = "Growth time vs R: " + name
+        axs[x, y].set_title(title)
+        x += 1
+        if x == 3:
+            x = 0
+            y = 1
+    
+    plt.show()
 # Similarity to best condition
 yes = False
 if yes:
@@ -59,7 +147,7 @@ if yes:
     plt.show()
 
 # Similarity to best glucose
-yes = True
+yes = False
 if yes:
     fig, ax = plt.subplots()
     colors = {"glucose":"red", "glycerol":"blue", "nacl":"yellow", "lactate":"black", "gluconate":"purple", "mgso4":"orange"}
