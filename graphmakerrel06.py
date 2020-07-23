@@ -36,11 +36,12 @@ yes = True
 if yes:
     fig, ax = plt.subplots()
     temp = wow[wow["Type"] == "mgso4"]
+    temp = temp[temp["Concentration"] >= 0.8]
     scatter = ax.scatter(temp["Concentration"], temp["Similarity to glucose_4"], c = temp["Batch"])
     handles, labels = scatter.legend_elements(prop = "colors")
     legend2 = ax.legend(handles, labels, title = "Batch")
     ax.set_xlabel("Concentration")
-    
+    ax.set_xscale("log")
     ax.set_ylabel("Similarity to glucose_4")
     ax.set_title("MgSO4: Similarity to glucose vs concentration (with batch number)")
     plt.show()

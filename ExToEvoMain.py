@@ -163,7 +163,7 @@ for species_name in species_names:
     expression_columns = []
     full_data.dropna(inplace = True)
     num_expression_columns = 0
-    print(full_data.head(5))
+    print("before", full_data.head(5))
     for i in list(full_data):
         if i != "Gene Name":
             if i != evo_rate_name:
@@ -182,20 +182,20 @@ for species_name in species_names:
     av = False
     if species_name == "Escherichia_coli_REL606" and av:
         conds = {
-            "gluc3": ["glucose_3", "glucose_3.1"],
-            "gluc4": ["glucose_4", "glucose_4.1"],
-            "gluc5": ["glucose_5", "glucose_5.1"],
-            "gluc6": ["glucose_6", "glucose_6.1"],
-            "gluc8": ["glucose_8", "glucose_8.1"],
-            "gluc24": ["glucose_24", "glucose_24.1"],
-            "gluc48": ["glucose_48", "glucose_48.1"],
-            "gluc168": ["glucose_168", "glucose_168.1"],
-            "gluc336": ["glucose_336", "glucose_336.1"],
-            "glycexp": ["glycerol_5", "glycerol_7", "glycerol_8", "glycerol_10", "glycerol_14",
+            "gluc3h": ["glucose_3", "glucose_3.1", "glucose_3.2"],
+            "gluc4h": ["glucose_4", "glucose_4.1", "glucose_4.2"],
+            "gluc5h": ["glucose_5", "glucose_5.1", "glucose_5.2"],
+            "gluc6h": ["glucose_6", "glucose_6.1", "glucose_6.2"],
+            "gluc8h": ["glucose_8", "glucose_8.1", "glucose_8.2"],
+            "gluc24h": ["glucose_24", "glucose_24.1", "glucose_24.2"],
+            "gluc48h": ["glucose_48", "glucose_48.1", "glucose_48.2"],
+            "gluc168h": ["glucose_168", "glucose_168.1", "glucose_168.2"],
+            "gluc336h": ["glucose_336", "glucose_336.1", "glucose_336.2"],
+            "glyc_exp": ["glycerol_5", "glycerol_7", "glycerol_8", "glycerol_10", "glycerol_14",
                         "glycerol_5.1", "glycerol_7.1", "glycerol_8.1", "glycerol_10.1", "glycerol_14.1",
                         "glycerol_5.2", "glycerol_7.2", "glycerol_8.2", "glycerol_10.2", "glycerol_14.2"],
-            "glycsta":["glycerol_24", "glycerol_48", "glycerol_168", "glycerol_336",
-                       "glycerol_24.1", "glycerol_48.1", "glycerol_168.1", "glycerol_336.1",
+            "glyc_sta":["glycerol_24", "glycerol_48", "glycerol_168", "glycerol_336",
+                       "glycerol_24.1", "glycerol_48.1", "glycerol_168.1",
                        "glycerol_24.2", "glycerol_48.2", "glycerol_168.2"],
             "nacl_5_exp": ["glucose_5.5", "glucose_6.2", "glucose_5.5.1"],
             "nacl_5_sta": ["glucose_29", "glucose_28", "glucose_29.1"],
@@ -204,23 +204,47 @@ for species_name in species_names:
             "nacl_300_exp": ["nacl_300_8", "nacl_300_10", "nacl_300_10.1"],
             "nacl_100_sta": ["nacl_100_28", "nacl_100_29", "nacl_100_29.1"],
             "nacl_200_sta": ["nacl_200_28", "nacl_200_29", "nacl_200_29.1"],
-            "nacl_300_sta": ["nacl_300_28", "nacl_300_29", "nacl_300_29.1"]}
-            
+            "nacl_300_sta": ["nacl_300_28", "nacl_300_29", "nacl_300_29.1"],
+            "lact_exp": ["lactate_9", "lactate_8", "lactate_9.1"],
+            "lact_sta": ["lactate_29", "lactate_29.1","lactate_29.2"],
+            "gluconate_exp": ["gluconate_6", "gluconate_6.1", "gluconate_6.1"],
+            "gluconate_sta": ["gluconate_27", "gluconate_27.1", "gluconate_27.2"],
+            "mgso4_0.08_exp": ["mgso4_0.08_5.5", "mgso4_0.08_5.5.1", "mgso4_0.08_5.5.2", "mgso4_0.08_5.5.3",
+                               "mgso4_0.08_5.5.4", "mgso4_0.08_5.5.5"],
+            "mgso4_0.08_sta": ["mgso4_0.08_26", "mgso4_0.08_26.1", "mgso4_0.08_26.2", "mgso4_0.08_28",
+                               "mgso4_0.08_28.1", "mgso4_0.08_28.2"],
+            "mgso4_0.8_exp": ["glucose_5.5.2", "glucose_5.5.3", "glucose_5.5.4"],
+            "mgso4_0.8_sta": ["glucose_28.3", "glucose_28.2", "glucose_28.1"],
+            "mgso4_8_exp": ["mgso4_8_5.5", "mgso4_8_5.5.1", "mgso4_8_5.5.2"],
+            "mgso4_50_exp": ["mgso4_50_5", "mgso4_50_5.1", "mgso4_50_5.2"],
+            "mgso4_200_exp": ["mgso4_200_5", "mgso4_200_5.1", "mgso4_200_5.2"],
+            "mgso4_400_exp": ["mgso4_400_7", "mgso4_400_7.1", "mgso4_400_7.2"],
+            "mgso4_8_sta": ["mgso4_8_28", "mgso4_8_28.1", "mgso4_8_28.2"],
+            "mgso4_50_sta": ["mgso4_50_28", "mgso4_50_28.1", "mgso4_50_28.2"],
+            "mgso4_200_sta": ["mgso4_200_28", "mgso4_200_28.1", "mgso4_200_28.2"],
+            "mgso4_400_sta": ["mgso4_400_28", "mgso4_400_28.1", "mgso4_400_28.2"],
+            "mgso4_0.005_exp": ["mgso4_0.005_5", "mgso4_0.005_5.1", "mgso4_0.005_5.2"],
+            "mgso4_0.01_exp": ["mgso4_0.01_5.5", "mgso4_0.01_5.5.1", "mgso4_0.01_5.5.2"],
+            "mgso4_0.02_exp": ["mgso4_0.02_5.5", "mgso4_0.02_5.5.1", "mgso4_0.02_5.5.2"],
+            "mgso4_0.04_exp": ["mgso4_0.04_5.5", "mgso4_0.04_5.5.1", "mgso4_0.04_5.5.2"],
+            "mgso4_0.005_sta": ["mgso4_0.005_26", "mgso4_0.005_26.1", "mgso4_0.005_26.2"],
+            "mgso4_0.01_sta": ["mgso4_0.01_26", "mgso4_0.01_26.1", "mgso4_0.01_26.2"],
+            "mgso4_0.02_sta": ["mgso4_0.02_26", "mgso4_0.02_26.1", "mgso4_0.02_26.2"],
+            "mgso4_0.04_sta": ["mgso4_0.04_26", "mgso4_0.04_26.1", "mgso4_0.04_26.2"]}
 
-            
-        only_expression = full_data[expression_columns]
-        # Note: axis = 1 makes it by columns.
-        only_expression = only_expression.groupby(expression_columns, axis = 1).agg(np.average)
-        expression_columns = only_expression.columns
-        print(only_expression.head(8))
+        avg_exp = pd.DataFrame()
+        for k in conds.keys():
+            avg_exp[k] = full_data[conds[k]].mean(axis = 1)
+        expression_columns = avg_exp.columns
+        print(avg_exp.head(8))
         print(expression_columns)
-        only_expression["Gene Name"] = full_data["Gene Name"]
-        only_expression["Evo Rate"] = full_data["Evo Rate"]
-        full_data = only_expression
+        avg_exp["Gene Name"] = full_data["Gene Name"]
+        avg_exp["Evo Rate"] = full_data["Evo Rate"]
+        full_data = avg_exp
         # Reorder
         colsies = [evo_rate_name, "Gene Name"] + [col for col in full_data if col != evo_rate_name and col != "Gene Name"]
         full_data = full_data[colsies]
-    # THAT'S IT LETS HOP IT WORKS
+    # THAT'S IT LETS HOPE IT WORKS
 
 
     
