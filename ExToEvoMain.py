@@ -80,10 +80,12 @@ def lin_model(data, columns, alph = 1.0):
     # Create the linear combination and plot it
     lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
     for i in range(1, len(columns)):
-        lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
+        # coef[i]
+        lin_comb = np.add(lin_comb, np.multiply(1, expression_data.iloc[:, i]))
 
-    #plt.scatter(lin_comb, evo_rates, color = 'red')
-    #plt.show()
+    # IF YOU DON'T WANT PLOTS SHOWING UP, COMMENT HERE
+    plt.scatter(expression_data[columns[0]], evo_rates, color = 'red', marker = '.')
+    plt.show()
     
     return (coef, columns, pred)
 
@@ -129,13 +131,12 @@ for species_name in species_names:
     data = {}
     i = 0
     for filename in os.listdir():
-        print(filename)
         if filename.endswith(".csv") and filename[0:2] != "NO":
             print(filename)
             data[str(i)] = pd.read_csv(filename)
             i += 1
     num_datasets = i
-
+    print()
 
     ## Step 2: Combine data
     """
@@ -150,10 +151,9 @@ for species_name in species_names:
     if evo_rate_name not in full_data.columns:
         print("This program is about to crash because there is no column titled", evo_rate_name)
     else:
-        print("No crash necessary.")
         colsies = [evo_rate_name] + [col for col in full_data if col != evo_rate_name]
         full_data = full_data[colsies]
-        print("Order changed successfully.")
+        
     ## Step 3.1: Process data
     """
     Step 3 Notes:
@@ -173,77 +173,84 @@ for species_name in species_names:
             #full_data = full_data[full_data[i] != 0]
             #full_data[i] = np.log(full_data[i])
 
-            # Rank data here
-            full_data[i] = full_data[i].rank()
-
+            # Rank data here if necessary
+            #full_data[i] = full_data[i].rank()
+    full_data.dropna(inplace = True)
 
 
     # AVERAGING DATA -- COMMENT OUT IF UNNECESSARY
-    av = False
+    av = True
     if species_name == "Escherichia_coli_REL606" and av:
         conds = {
-            "gluc3h": ["glucose_3", "glucose_3.1", "glucose_3.2"],
-            "gluc4h": ["glucose_4", "glucose_4.1", "glucose_4.2"],
-            "gluc5h": ["glucose_5", "glucose_5.1", "glucose_5.2"],
-            "gluc6h": ["glucose_6", "glucose_6.1", "glucose_6.2"],
-            "gluc8h": ["glucose_8", "glucose_8.1", "glucose_8.2"],
-            "gluc24h": ["glucose_24", "glucose_24.1", "glucose_24.2"],
-            "gluc48h": ["glucose_48", "glucose_48.1", "glucose_48.2"],
-            "gluc168h": ["glucose_168", "glucose_168.1", "glucose_168.2"],
-            "gluc336h": ["glucose_336", "glucose_336.1", "glucose_336.2"],
+            "gluc_exp": ["glucose_3", "glucose_3.1", "glucose_3.2",
+                       "glucose_4", "glucose_4.1", "glucose_4.2",
+                       "glucose_5", "glucose_5.1", "glucose_5.2",
+                       "glucose_6", "glucose_6.1", "glucose_6.2",
+                       "glucose_8", "glucose_8.1", "glucose_8.2"],
+            "gluc_sta": ["glucose_24", "glucose_24.1", "glucose_24.2",
+                         "glucose_48", "glucose_48.1", "glucose_48.2"],
+            "gluc_latesta": ["glucose_168", "glucose_168.1", "glucose_168.2",
+                             "glucose_336", "glucose_336.1", "glucose_336.2"],
             "glyc_exp": ["glycerol_5", "glycerol_7", "glycerol_8", "glycerol_10", "glycerol_14",
                         "glycerol_5.1", "glycerol_7.1", "glycerol_8.1", "glycerol_10.1", "glycerol_14.1",
                         "glycerol_5.2", "glycerol_7.2", "glycerol_8.2", "glycerol_10.2", "glycerol_14.2"],
             "glyc_sta":["glycerol_24", "glycerol_48", "glycerol_168", "glycerol_336",
                        "glycerol_24.1", "glycerol_48.1", "glycerol_168.1",
                        "glycerol_24.2", "glycerol_48.2", "glycerol_168.2"],
-            "nacl_5_exp": ["glucose_5.5", "glucose_6.2", "glucose_5.5.1"],
-            "nacl_5_sta": ["glucose_29", "glucose_28", "glucose_29.1"],
+            #"nacl_5_exp": ["glucose_5.5", "glucose_6.2", "glucose_5.5.1"],
+            #"nacl_5_sta": ["glucose_29", "glucose_28", "glucose_29.1"],
             "nacl_100_exp": ["nacl_100_6.5"],
-            "nacl_200_exp": ["nacl_200_6", "nacl_200_8", "nacl_200_8.1"],
+            #"nacl_200_exp": ["nacl_200_6", "nacl_200_8", "nacl_200_8.1"],
             "nacl_300_exp": ["nacl_300_8", "nacl_300_10", "nacl_300_10.1"],
             "nacl_100_sta": ["nacl_100_28", "nacl_100_29", "nacl_100_29.1"],
-            "nacl_200_sta": ["nacl_200_28", "nacl_200_29", "nacl_200_29.1"],
+            #"nacl_200_sta": ["nacl_200_28", "nacl_200_29", "nacl_200_29.1"],
             "nacl_300_sta": ["nacl_300_28", "nacl_300_29", "nacl_300_29.1"],
             "lact_exp": ["lactate_9", "lactate_8", "lactate_9.1"],
             "lact_sta": ["lactate_29", "lactate_29.1","lactate_29.2"],
-            "gluconate_exp": ["gluconate_6", "gluconate_6.1", "gluconate_6.1"],
+            "gluconate_exp": ["gluconate_6.1", "gluconate_6.1"],
             "gluconate_sta": ["gluconate_27", "gluconate_27.1", "gluconate_27.2"],
-            "mgso4_0.08_exp": ["mgso4_0.08_5.5", "mgso4_0.08_5.5.1", "mgso4_0.08_5.5.2", "mgso4_0.08_5.5.3",
+            "mgso4_0.08_exp": ["mgso4_0.08_5.5.1", "mgso4_0.08_5.5.2", "mgso4_0.08_5.5.3",
                                "mgso4_0.08_5.5.4", "mgso4_0.08_5.5.5"],
             "mgso4_0.08_sta": ["mgso4_0.08_26", "mgso4_0.08_26.1", "mgso4_0.08_26.2", "mgso4_0.08_28",
                                "mgso4_0.08_28.1", "mgso4_0.08_28.2"],
-            "mgso4_0.8_exp": ["glucose_5.5.2", "glucose_5.5.3", "glucose_5.5.4"],
-            "mgso4_0.8_sta": ["glucose_28.3", "glucose_28.2", "glucose_28.1"],
+            #"mgso4_0.8_exp": ["glucose_5.5.2", "glucose_5.5.3", "glucose_5.5.4"],
+            #"mgso4_0.8_sta": ["glucose_28.3", "glucose_28.2", "glucose_28.1"],
             "mgso4_8_exp": ["mgso4_8_5.5", "mgso4_8_5.5.1", "mgso4_8_5.5.2"],
-            "mgso4_50_exp": ["mgso4_50_5", "mgso4_50_5.1", "mgso4_50_5.2"],
-            "mgso4_200_exp": ["mgso4_200_5", "mgso4_200_5.1", "mgso4_200_5.2"],
+            #"mgso4_50_exp": ["mgso4_50_5", "mgso4_50_5.1", "mgso4_50_5.2"],
+            #"mgso4_200_exp": ["mgso4_200_5", "mgso4_200_5.1", "mgso4_200_5.2"],
             "mgso4_400_exp": ["mgso4_400_7", "mgso4_400_7.1", "mgso4_400_7.2"],
             "mgso4_8_sta": ["mgso4_8_28", "mgso4_8_28.1", "mgso4_8_28.2"],
-            "mgso4_50_sta": ["mgso4_50_28", "mgso4_50_28.1", "mgso4_50_28.2"],
-            "mgso4_200_sta": ["mgso4_200_28", "mgso4_200_28.1", "mgso4_200_28.2"],
+            #"mgso4_50_sta": ["mgso4_50_28", "mgso4_50_28.1", "mgso4_50_28.2"],
+            #"mgso4_200_sta": ["mgso4_200_28", "mgso4_200_28.1", "mgso4_200_28.2"],
             "mgso4_400_sta": ["mgso4_400_28", "mgso4_400_28.1", "mgso4_400_28.2"],
-            "mgso4_0.005_exp": ["mgso4_0.005_5", "mgso4_0.005_5.1", "mgso4_0.005_5.2"],
-            "mgso4_0.01_exp": ["mgso4_0.01_5.5", "mgso4_0.01_5.5.1", "mgso4_0.01_5.5.2"],
-            "mgso4_0.02_exp": ["mgso4_0.02_5.5", "mgso4_0.02_5.5.1", "mgso4_0.02_5.5.2"],
-            "mgso4_0.04_exp": ["mgso4_0.04_5.5", "mgso4_0.04_5.5.1", "mgso4_0.04_5.5.2"],
+            "mgso4_0.005_exp": ["mgso4_0.005_5.1", "mgso4_0.005_5.2"],
+            #"mgso4_0.01_exp": ["mgso4_0.01_5.5", "mgso4_0.01_5.5.1", "mgso4_0.01_5.5.2"],
+            #"mgso4_0.02_exp": ["mgso4_0.02_5.5", "mgso4_0.02_5.5.1", "mgso4_0.02_5.5.2"],
+            #"mgso4_0.04_exp": ["mgso4_0.04_5.5", "mgso4_0.04_5.5.1", "mgso4_0.04_5.5.2"],
             "mgso4_0.005_sta": ["mgso4_0.005_26", "mgso4_0.005_26.1", "mgso4_0.005_26.2"],
-            "mgso4_0.01_sta": ["mgso4_0.01_26", "mgso4_0.01_26.1", "mgso4_0.01_26.2"],
-            "mgso4_0.02_sta": ["mgso4_0.02_26", "mgso4_0.02_26.1", "mgso4_0.02_26.2"],
-            "mgso4_0.04_sta": ["mgso4_0.04_26", "mgso4_0.04_26.1", "mgso4_0.04_26.2"]}
-
+            #"mgso4_0.01_sta": ["mgso4_0.01_26", "mgso4_0.01_26.1", "mgso4_0.01_26.2"],
+            #"mgso4_0.02_sta": ["mgso4_0.02_26", "mgso4_0.02_26.1", "mgso4_0.02_26.2"],
+            #"mgso4_0.04_sta": ["mgso4_0.04_26", "mgso4_0.04_26.1", "mgso4_0.04_26.2"]
+            }
+        # Removed:
+        # gluconate_6 (MURI_091); mgso4_0.08_5.5 (MURI_130)
+        # nacl_300_10 (MURI_072); mgso4_0.005_5 (MURI_142)
+        
         avg_exp = pd.DataFrame()
         for k in conds.keys():
             avg_exp[k] = full_data[conds[k]].mean(axis = 1)
-        expression_columns = avg_exp.columns
+        expression_columns = list(avg_exp.columns)
         print(avg_exp.head(8))
-        print(expression_columns)
         avg_exp["Gene Name"] = full_data["Gene Name"]
         avg_exp["Evo Rate"] = full_data["Evo Rate"]
         full_data = avg_exp
         # Reorder
         colsies = [evo_rate_name, "Gene Name"] + [col for col in full_data if col != evo_rate_name and col != "Gene Name"]
         full_data = full_data[colsies]
+
+        # Comment out if ranking is unecessary
+        #for i in full_data:
+            #full_data[i] = full_data[i].rank()
     # THAT'S IT LETS HOPE IT WORKS
 
 
@@ -347,6 +354,7 @@ for species_name in species_names:
                     com = in_list[0].lower()
                     if com == "drop":
                         cols = cur_model[1].copy()
+                        print(cols)
                         for i in range(1, len(in_list)):
                             cols.remove(in_list[i])
                         cur_model = lin_model(full_data, cols)
@@ -386,7 +394,7 @@ for species_name in species_names:
                                         temp.append(0)
                                 partls[cur] = temp
                             print(partls)
-                            #partls.to_csv('partials.csv')
+                            partls.to_csv('partialsRel06.csv')
                         elif in_list[2].lower() == "all":
                             print("Partial correlations for", in_list[1])
                             for i in expression_columns:
