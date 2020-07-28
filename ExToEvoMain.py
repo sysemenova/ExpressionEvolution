@@ -77,15 +77,13 @@ def lin_model(data, columns, alph = 1.0):
     coef = reg_model.coef_
     pr_coef(coef, columns)
 
-    # Create the linear combination and plot it
-    lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
-    for i in range(1, len(columns)):
-        # coef[i]
-        lin_comb = np.add(lin_comb, np.multiply(1, expression_data.iloc[:, i]))
-
-    # IF YOU DON'T WANT PLOTS SHOWING UP, COMMENT HERE
-    plt.scatter(expression_data[columns[0]], evo_rates, color = 'red', marker = '.')
-    plt.show()
+    # THIS CODE IS FOR PLOTS: COMMENT AND UNCOMMENT AS NECESSARY
+    #lin_comb = np.multiply(coef[0], expression_data.iloc[:, 0])
+    #for i in range(1, len(columns)):
+        #lin_comb = np.add(lin_comb, np.multiply(coef[i], expression_data.iloc[:, i]))
+    
+    #plt.scatter(expression_data[columns[0]], evo_rates, color = 'red', marker = '.')
+    #plt.show()
     
     return (coef, columns, pred)
 
@@ -99,8 +97,7 @@ def partial(data, x1, x2, x3):
 """
 Program notes:
 """
-# List of all species that we have. May change to going through all folders
-# marked with something (so Images isn't gone through.)
+# List of all species to go through -- change as necessary
 species_names = ["Escherichia_coli_REL606"]
 
 # Get the full path before jumping into species
@@ -112,13 +109,8 @@ for species_name in species_names:
     print("Current species:", species_name)
     
     ## Step 1: Obtain data
-    """
-    Step 1 Notes:
-     - Will have to calculate the evolution rates in this step for some
-       species.
-    """
-
-    # Get the current path and create the full path
+    
+    # Create the full path
     full_path = cur_path + "/" + species_name
 
     # If path does not exist, raise an exception. Else, change the path
@@ -139,10 +131,7 @@ for species_name in species_names:
     print()
 
     ## Step 2: Combine data
-    """
-    Step 2 Notes:
-     - All datasets must have a column named "Gene Name"
-    """
+    
     # Merge all datasets by their column named "Gene Name"
     full_data = data["0"]
     for i in range(1, num_datasets):
@@ -155,15 +144,11 @@ for species_name in species_names:
         full_data = full_data[colsies]
         
     ## Step 3.1: Process data
-    """
-    Step 3 Notes:
-    """
-    len_bef = len(full_data)
-    print(len_bef)
+    
+    len_bef = len(full_data)    # Keep track of how much was dropped
     expression_columns = []
     full_data.dropna(inplace = True)
     num_expression_columns = 0
-    print("before", full_data.head(5))
     for i in list(full_data):
         if i != "Gene Name":
             if i != evo_rate_name:
@@ -178,7 +163,7 @@ for species_name in species_names:
     full_data.dropna(inplace = True)
 
 
-    # AVERAGING DATA -- COMMENT OUT IF UNNECESSARY
+    # AVERAGING DATA FOR REL606 - SET av TO CHANGE
     av = True
     if species_name == "Escherichia_coli_REL606" and av:
         conds = {
@@ -251,25 +236,25 @@ for species_name in species_names:
         # Comment out if ranking is unecessary
         #for i in full_data:
             #full_data[i] = full_data[i].rank()
-    # THAT'S IT LETS HOPE IT WORKS
-
-
     
+
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
     if float(len_bef-len_aft)/float(len_bef) > 0.05:
         print("Warning: around", 100*(len_bef-len_aft)/len_bef, "percent of your data has been dropped.")
-        input()
+        print()
     else:
         print("Dropped rows within acceptable parameters.")
         print()
-    print("Processed data head: ")
+    print("Processed data: ")
     print(full_data.head(8))
     print()
     
-    ## Step 4: Create a full linear regression model  
+    ## Step 4: Create a full linear regression model
+    
     print("Full model:")
     cur_model = lin_model(full_data, expression_columns)
+    
     # Create all of the individual r^2
     # May edit to make the indiv_r2 a dictionary instead of a list
     expression_data = full_data[expression_columns]
@@ -277,7 +262,6 @@ for species_name in species_names:
     indiv_r2 = []
     for i in expression_columns:
         r = stats.pearsonr(full_data[i], evo_rates)
-        #print(i, r)
         indiv_r2.append(r)
     print()
 
@@ -344,7 +328,6 @@ for species_name in species_names:
                     
                     if not in_list[i] in expression_columns and in_list[i] != "all":
                         # RIGHT HERE: CHECK CAPITALIZATION
-                        # Note: whatever gets here won't go through the commands
                         in_list[i] = in_list[i].replace("_", " ")
                         if not in_list[i] in expression_columns and in_list[i] != "all":
                             good_input = False
@@ -407,7 +390,6 @@ for species_name in species_names:
                 else:
                     print("Invalid inputs.")
         print()
-    ## Step 5: Decide what to do from here
     print()
     print()
 print("Program is over.")
