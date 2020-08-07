@@ -1,0 +1,23 @@
+Conditions,R2s,Similarity to LB,Type
+Glucose,0.153619167,9063.347505,one_carbon
+LB,0.182032772,0,rich
+Glycerol + AA,0.167758089,5768.507606,rich
+Acetate,0.137408644,9106.403132,one_carbon
+Fumarate,0.151713348,8907.76358,one_carbon
+Glucosamine,0.15026854,8778.141603,one_carbon
+Glycerol,0.157316977,8727.353551,one_carbon
+Pyruvate,0.15932693,9085.648904,one_carbon
+Chemostat m=0.5,0.168502876,9146.462267,limite_carbon
+Chemostat m=0.35,0.15844856,9715.566684,limite_carbon
+Chemostat m=0.20,0.153248512,10288.45013,limite_carbon
+Chemostat m=0.12,0.151254705,10788.0672,limite_carbon
+Stationary phase 1 day,0.124158673,11289.30104,stationary
+Stationary phase 3 days,0.12401384,11375.37885,stationary
+Osmotic-stress glucose,0.119009317,10563.33517,stress
+42C glucose,0.155953135,9921.033414,stress
+pH6 glucose,0.130919115,10738.81297,stress
+Xylose,0.152847966,9512.847103,one_carbon
+Mannose,0.150977006,9140.591556,one_carbon
+Galactose ,0.139828642,10321.43517,one_carbon
+Succinate,0.157653625,8992.762979,one_carbon
+Fructose,0.165506109,9384.680069,one_carbon

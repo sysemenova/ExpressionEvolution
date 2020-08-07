@@ -98,7 +98,7 @@ def partial(data, x1, x2, x3):
 Program notes:
 """
 # List of all species to go through -- change as necessary
-species_names = ["Escherichia_coli_REL606"]
+species_names = ["Escherichia_coli"]
 
 # Get the full path before jumping into species
 cur_path = os.getcwd()
@@ -144,6 +144,10 @@ for species_name in species_names:
         full_data = full_data[colsies]
         
     ## Step 3.1: Process data
+
+    ## IF AVERAGING, SAY TRUE
+    av = False
+
     
     len_bef = len(full_data)    # Keep track of how much was dropped
     expression_columns = []
@@ -159,12 +163,12 @@ for species_name in species_names:
             #full_data[i] = np.log(full_data[i])
 
             # Rank data here if necessary
-            #full_data[i] = full_data[i].rank()
+            if not av:
+                full_data[i] = full_data[i].rank()
     full_data.dropna(inplace = True)
 
 
-    # AVERAGING DATA FOR REL606 - SET av TO CHANGE
-    av = True
+    # AVERAGING DATA FOR REL606
     if species_name == "Escherichia_coli_REL606" and av:
         conds = {
             "gluc_exp": ["glucose_3", "glucose_3.1", "glucose_3.2",
@@ -234,8 +238,8 @@ for species_name in species_names:
         full_data = full_data[colsies]
 
         # Comment out if ranking is unecessary
-        #for i in full_data:
-            #full_data[i] = full_data[i].rank()
+        for i in full_data:
+            full_data[i] = full_data[i].rank()
     
 
     len_aft = len(full_data)
@@ -262,6 +266,7 @@ for species_name in species_names:
     indiv_r2 = []
     for i in expression_columns:
         r = stats.pearsonr(full_data[i], evo_rates)
+        r = (r[0]*r[0], r[1])
         indiv_r2.append(r)
     print()
 
@@ -272,7 +277,7 @@ for species_name in species_names:
     while flag:
         user_inp = input("Command: ")
         in_list = user_inp.replace(',','').split()
-        valid_commands = ["drop","alpha", "compare_to", "partial", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
+        valid_commands = ["drop","alpha", "correlation_to", "compare_to", "partial", "full", "r2", "undrop", "only", "next", "pr", "save", "highest", "help"]
         if in_list[0].lower() not in valid_commands:
             print("Invalid command.")
         else:
@@ -353,6 +358,18 @@ for species_name in species_names:
                         name = "Similarity to " + comp_cond
                         toret[name] = temp
                         toret.to_csv(user_file)
+                    elif com == "correlation_to":
+                        comp_cond = in_list[1]
+                        # r = stats.pearsonr(full_data[i], evo_rates)
+                        toret = pd.DataFrame()
+                        temp = []
+                        for i in expression_columns:
+                            temp.append(stats.pearsonr(full_data[comp_cond], full_data[i])[0])
+                        user_file = input("Name of file (with .csv please): ")
+                        toret["Conditions"] = expression_columns
+                        name = "Correlation to " + comp_cond
+                        toret[name] = temp
+                        toret.to_csv(user_file)
                     elif com == "r2":
                         for i in range(1, len(in_list)):
                             pr_r2(indiv_r2, full_data, in_list[i])
@@ -377,7 +394,8 @@ for species_name in species_names:
                                         temp.append(0)
                                 partls[cur] = temp
                             print(partls)
-                            partls.to_csv('partialsRel06.csv')
+                            user_name = input("Enter the name of the file (with .csv): ")
+                            partls.to_csv(user_name)
                         elif in_list[2].lower() == "all":
                             print("Partial correlations for", in_list[1])
                             for i in expression_columns:
