@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 os.chdir("C:\\Users\\visitor\\Documents\\ExLinComb\\Images")
-wow = pd.read_csv("r2.csv")
+wow = pd.read_csv("ecoli_data.csv")
 
 typenames = {"limite_carbon": "Limited Carbon",
              "one_carbon": "One Carbon Source",

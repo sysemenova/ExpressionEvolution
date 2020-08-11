@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 os.chdir("C:\\Users\\visitor\\Documents\\ExLinComb\\Images")
-wow = pd.read_csv("rel06r2cs.csv")
+wow = pd.read_csv("rel606_data.csv")
 
 
 # Compare carbon sources
