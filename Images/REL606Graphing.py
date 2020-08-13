@@ -8,36 +8,38 @@ os.chdir("C:\\Users\\visitor\\Documents\\ExLinComb\\Images")
 wow = pd.read_csv("rel606_data.csv")
 
 
-# Compare carbon sources
-yes = True
+# Compare carbon sources, boxplot
+yes = False
 if yes:
     options = ["glucose", "gluconate", "lactate", "glycerol"]
     dt = wow[wow["Type"].isin(options)]
-    dt = dt[dt["Phase"] == "exponential"]
-    print(dt.head())
+    #dt = dt[dt["Phase"] == "exponential"]
+    #print(dt.head())
     ax = sns.boxplot(x = "Type", y = "R2s", data = dt)
-    ax.set_title("One Carbon Sources: Exponential Phase")
+    ax.set_title("One Carbon Sources")
     #ax.show()
     plt.show()
 
 # MGSO4
+# High Mg Strangeness Plot
 yes = False
 if yes:
     fig, ax = plt.subplots()
     dt = wow[wow["Mg Type"] == "highMg"]
     dt = dt[dt["Phase"] == "stationary"]
     
-    scatter = ax.scatter(np.log(dt["Concentration"]), dt["Correlation to glucose_4"])
-    ax.set_ylabel("Correlation to glucose expression")
+    scatter = ax.scatter(np.log(dt["Concentration"]), dt["Correlation to glucose_24.1"])
+    ax.set_ylabel("Correlation to best stationary glucose expression")
     ax.set_xlabel("MgSO4 Concentration, log")
     ax.set_title("High MgSO4 Stress, Stationary Phase")
     plt.show()
 
-# Time vs r with concentration as color.
+# Simple scatter with number as color
 yes = False
 if yes:
     fig, ax = plt.subplots()
-    scatter = ax.scatter(wow["Growth Time"], wow["Mgso4 r2"], c = wow["Concentration"])
+    dt = wow[wow["Type"] == "mgso4"]
+    scatter = ax.scatter(dt["Growth Time"], dt["R2s"], c = dt["Concentration"])
     handles, labels = scatter.legend_elements(prop = "colors", alpha = 0.6)
     legend2 = ax.legend(handles, labels, title = "Concentration")
     ax.set_ylabel("R value")
@@ -45,93 +47,8 @@ if yes:
     ax.set_title("MgSO4: Time vs R")
     plt.show()
     
-# Concentration vs r with time as color.
-yes = False
-if yes:
-    fig, ax = plt.subplots()
-    dt = wow[wow["Type"] == "mgso4"]
-    scatter = ax.scatter(dt["Concentration"], dt["R2s"], c = dt["Growth Time"], norm = matplotlib.colors.LogNorm())
-    handles, labels = scatter.legend_elements(prop = "colors")
-    legend2 = ax.legend(handles, labels, title = "Growth Time")
-    ax.set_ylabel("R value")
-    ax.set_xlabel("Concentration (mG)")
-    ax.set_title("MgSO4: Concentration vs R")
-    plt.show()
-
-# Similarity to glucose vs r with concentration as color
-yes = False
-if yes:
-    fig, ax = plt.subplots()
-    tempConcentration = np.log(wow["Concentration"])
-    scatter = ax.scatter(wow["Similarity to glucose_4"], wow["Mgso4 r2"], c = tempConcentration)
-    handles, labels = scatter.legend_elements(prop = "colors")
-    legend2 = ax.legend(handles, labels, title = "Concentration")
-    ax.set_ylabel("R value")
-    ax.set_xlabel("Similarity to glucose_4")
-    ax.set_title("MgSO4: Similarity to glucose vs r (with concentration)")
-    plt.show()
-
-    
-# Similarity to glucose vs concentraton with batch as color (copy of Dinara's plots)
-yes = False
-if yes:
-    fig, ax = plt.subplots()
-    temp = wow[wow["Type"] == "mgso4"]
-    temp = temp[temp["Concentration"] >= 0.8]
-    scatter = ax.scatter(temp["Concentration"], temp["Similarity to glucose_4"], c = temp["Batch"])
-    handles, labels = scatter.legend_elements(prop = "colors")
-    legend2 = ax.legend(handles, labels, title = "Batch")
-    ax.set_xlabel("Concentration")
-    ax.set_xscale("log")
-    ax.set_ylabel("Similarity to glucose_4")
-    ax.set_title("MgSO4: Similarity to glucose vs concentration (with batch number)")
-    plt.show()
-    
-# Concentration vs r with time as color, subplots by phase
-yes = False
-if yes:
-    data = wow[wow["Type"] == "mgso4"]
-    grpd = data.groupby("Phase")
-    fig, ax = plt.subplots(2, 1, sharex = True, sharey = True)
-    x = 0
-    for name, dt in grpd:
-        scatter = ax[x].scatter(dt["Concentration"], dt["R2s"], c = dt["Growth Time"])
-        handles, labels = scatter.legend_elements(prop = "colors")
-        legend2 = ax[x].legend(handles, labels, title = "Growth Time")
-        
-        ax[x].set_ylabel("R value")
-        ax[x].set_xlabel("Concentration (mM)")
-        names = {"exponential": "Exponential Phase", "stationary": "Stationary Phase"}
-        title = "MgSO4 " + names[name] + ": Concentration vs R"
-        ax[x].set_title(title)
-        x += 1
-    plt.show()
-
-# NACL
-yes = False
-if yes:
-    fig, ax = plt.subplots()
-    onlyNacl = wow[wow["Type"] == "nacl"]
-    scatter = ax.scatter(onlyNacl["Growth Time"], onlyNacl["R2s"], c = onlyNacl["Concentration"])
-    handles, labels = scatter.legend_elements(prop = "colors", alpha = 0.6)
-    legend2 = ax.legend(handles, labels, title = "Concentration")
-    ax.set_ylabel("R value")
-    ax.set_xlabel("Growth Time (h)")
-    ax.set_title("NaCl: Time vs R")
-    plt.show()
-    
-yes = False
-if yes:
-    fig, ax = plt.subplots()
-    onlyNacl = wow[wow["Type"] == "nacl"]
-    scatter = ax.scatter(onlyNacl["Concentration"], onlyNacl["R2s"], c = onlyNacl["Growth Time"], norm = matplotlib.colors.LogNorm())
-    handles, labels = scatter.legend_elements(prop = "colors")
-    legend2 = ax.legend(handles, labels, title = "Growth Time")
-    ax.set_ylabel("R value")
-    ax.set_xlabel("Concentration (mM)")
-    ax.set_title("NaCl: Concentration vs R")
-    plt.show()
-# Concentration vs r with time as color, subplots by phase
+# Concentration vs r with time as color, subplots by phase.
+# Change to NACL if necessary
 yes = False
 if yes:
     data = wow[wow["Type"] == "nacl"]
@@ -142,13 +59,15 @@ if yes:
         scatter = ax[x].scatter(dt["Concentration"], dt["R2s"], c = dt["Growth Time"])
         handles, labels = scatter.legend_elements(prop = "colors")
         legend2 = ax[x].legend(handles, labels, title = "Growth Time")
-        ax[x].set_ylabel("R value")
+        
+        ax[x].set_ylabel("R^2 value")
         ax[x].set_xlabel("Concentration (mM)")
         names = {"exponential": "Exponential Phase", "stationary": "Stationary Phase"}
-        title = "NaCl " + names[name] + ": Concentration vs R"
+        title = "MgSO4 " + names[name] + ": Concentration vs R^2"
         ax[x].set_title(title)
         x += 1
     plt.show()
+
 
 # ALL
 # Time vs r with type as color. Toggle "log" on and off
@@ -183,10 +102,10 @@ if yes:
             legend2 = axs[x, y].legend(handles, labels, title = "Concentration")
         else:
             axs[x, y].scatter(data["Growth Time"], data["R2s"], c = colors[name])
-        axs[x, y].set_ylabel("R value")
+        axs[x, y].set_ylabel("R^2 value")
         axs[x, y].set_xlabel("Growth Time (h)")
         axs[x, y].set_xscale("log")
-        title = "Growth time vs R: " + caps[name]
+        title = "Growth time vs R^2: " + caps[name]
         axs[x, y].set_title(title)
         x += 1
         if x == 3:
@@ -195,7 +114,7 @@ if yes:
     
     plt.show()
     
-# Time vs r with type as color and batch as color
+# Time vs r with batch as color
 yes = False
 if yes:
     colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
@@ -219,6 +138,7 @@ if yes:
             y = 1
     
     plt.show()
+
 # Similarity to best condition
 yes = False
 if yes:
@@ -230,6 +150,19 @@ if yes:
     ax.set_ylabel("R value")
     ax.set_xlabel("Similarity to MgSO4 at 400 mM at 7 hours (Euclidean distance)")
     ax.set_title("Similarity to Best Condition vs R")
+    plt.show()
+
+# Similarity to best condition but phase is color
+yes = False
+if yes:
+    fig, ax = plt.subplots()
+    colors = {"stationary":"red", "exponential":"blue", "late_stationary":"yellow"}
+    scatter = ax.scatter(wow["Similarity to mgso4_400_7.2"], wow["R2s"], c = wow["Phase"].map(colors))
+    makers = [plt.Line2D([0,0],[0,0], color = color, marker = 'o', linestyle = '') for color in colors.values()]
+    ax.legend(makers, colors.keys(), numpoints = 1)
+    ax.set_ylabel("R^2 value")
+    ax.set_xlabel("Similarity to MgSO4 at 400 mM at 7 hours (Euclidean distance)")
+    ax.set_title("Similarity to Best Condition vs R^2, Phase Colored")
     plt.show()
 
 # Similarity to best glucose
@@ -245,31 +178,7 @@ if yes:
     ax.set_title("Similarity to Best Glucose Condition vs R")
     plt.show()
     
-# Plot only glucose and Mg
-yes = False
-if yes:
-    colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
-    fig, ax = plt.subplots()
-    options = ["glucose", "mgso4"]
-    wow = wow[wow["Type"].isin(options)]
-    
-    color_map = wow["Type"].map(colors)
-    scatter = ax.scatter(wow["Growth Time"], wow["R2s"], c = color_map)
-    makers = [plt.Line2D([0,0],[0,0], color = color, marker = 'o', linestyle = '') for color in colors.values()]
-    ax.legend(makers, colors.keys(), numpoints = 1)
-    ax.set_ylabel("R value")
-    ax.set_xlabel("Growth Time (h)")
-    ax.set_xscale("log")
-    ax.set_title("Growth Time vs R of Glucose and MgSO4 (logged)")
-    plt.show()
 
 
 
 
-
-
-
-
-
-
-    

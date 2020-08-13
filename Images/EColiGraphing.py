@@ -19,12 +19,9 @@ typecolors = {"limite_carbon": "yellow",
 
 barchart = False
 barchartw0 = False
-partialsbar = False
+partialsbar = True
 simil = False
 
-print(wow)
-print(wow.sort_values("LB Partials"))
-print(wow.sort_values("R2s"))
 
 # Bar chart
 if partialsbar:

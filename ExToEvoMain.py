@@ -18,6 +18,7 @@ print("OS... ")
 import os
 
 print("Done. Beginning program...")
+print()
 
 evo_rate_name = "Evo Rate"
 
@@ -98,7 +99,15 @@ def partial(data, x1, x2, x3):
 Program notes:
 """
 # List of all species to go through -- change as necessary
-species_names = ["Escherichia_coli"]
+
+species_names = []
+print("For each species you wish to examine, enter the filename exactly.")
+while True:
+    usin = input("Enter file name (or press enter to continue): ")
+    if usin == "":
+        break
+    else:
+        species_names.append(usin)
 
 # Get the full path before jumping into species
 cur_path = os.getcwd()
@@ -139,19 +148,18 @@ for species_name in species_names:
 
     if evo_rate_name not in full_data.columns:
         print("This program is about to crash because there is no column titled", evo_rate_name)
+        print("Please fix this and try again.")
     else:
         colsies = [evo_rate_name] + [col for col in full_data if col != evo_rate_name]
         full_data = full_data[colsies]
         
     ## Step 3.1: Process data
 
-    ## IF AVERAGING, SAY TRUE
-    av = False
-
+    
     
     len_bef = len(full_data)    # Keep track of how much was dropped
     expression_columns = []
-    full_data.fillna(value = 0, inplace = True)
+    #full_data.fillna(value = 0, inplace = True)
     full_data.dropna(inplace = True)
     num_expression_columns = 0
     for i in list(full_data):
@@ -163,11 +171,12 @@ for species_name in species_names:
             #full_data = full_data[full_data[i] != 0]
             #full_data[i] = np.log(full_data[i])
 
-            # Rank data here if necessary
-            if not av:
-                full_data[i] = full_data[i].rank()
+            # Rank data here
+            full_data[i] = full_data[i].rank()
     full_data.dropna(inplace = True)
 
+    ## IF AVERAGING, SAY TRUE
+    av = False
 
     # AVERAGING DATA FOR REL606
     if species_name == "Escherichia_coli_REL606" and av:
@@ -245,7 +254,7 @@ for species_name in species_names:
 
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
-    if float(len_bef-len_aft)/float(len_bef) > 0.05:
+    if float(len_bef-len_aft)/float(len_bef) > 0.3:
         print("Warning: around", 100*(len_bef-len_aft)/len_bef, "percent of your data has been dropped.")
         print()
     else:
@@ -272,7 +281,27 @@ for species_name in species_names:
     print()
 
     # Edit the commands later
-    print("Commands: next, drop, undrop, full, only, highest, alpha, partial, r2, pr, save, help.")
+    print("COMMANDS:")
+    print("For all, __ means specific condition name. Enter condition names with underscores")
+    print("instead of spaces if applicable. Elipses mean you may enter as many as necessary.")
+    print("\tnext: goes to the next species")
+    print("\tdrop __, __, ...: drops all named conditions from multiple regression")
+    print("\tundrop __, __, ...: adds back in specificed conditions")
+    print("\tonly __, __, ...: does multiple regression with the specified conditions")
+    print("\tfull: does multiple regression with all conditions")
+    print("\thighest #: does multiple regression with the # most negative conditions")
+    print("\talpha #: sets alpha to #")
+    print("\talpha tune #: steps alpha to #*squared mean error")
+    print("\tcorrelation_to __: saves (to the filename you're prompted for) the Pearson correlation")
+    print("\t\tcoefficient of all conditions to specified condition.")
+    print("\tcompare_to __: saves the Euclidean distance of all conditions to specified condition.")
+    print("\tpartial __ (__, all): either gives the partial between two specified conditions or")
+    print("\t\tbetween first condition and all other conditions.")
+    print("\tpartial all: saves a table of all partials. Prompted for file name.")
+    print("\tpr (coef/r2/coef_r2): prints coefficients/r2 values/coefficients and r2 values")
+    print("\tr2 (__, all): prints either a specific condition or all r2. Recommended for printing")
+    print("\t\tr2 values.")
+    print("\tsave r2: saves r2, asking for a filename. A kinda useless command.")
     flag = True
     dropped = []
     while flag:
