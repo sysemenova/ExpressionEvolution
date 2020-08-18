@@ -1,7 +1,7 @@
 # Documentation here
 
 ## Step 0: Import necessary libraries
-print("Downloading libraires...")
+print("Downloading libraries...")
 print("Pandas... ", end = '')
 import pandas as pd
 print("NumPy... ", end = '')
@@ -155,11 +155,9 @@ for species_name in species_names:
         
     ## Step 3.1: Process data
 
-    
-    
     len_bef = len(full_data)    # Keep track of how much was dropped
     expression_columns = []
-    #full_data.fillna(value = 0, inplace = True)
+    # full_data.fillna(value = 0, inplace = True)
     full_data.dropna(inplace = True)
     num_expression_columns = 0
     for i in list(full_data):
