@@ -252,6 +252,7 @@ for species_name in species_names:
 
     len_aft = len(full_data)
     print("Num rows dropped:", len_bef-len_aft)
+    print("Num rows left:", len_aft)
     if float(len_bef-len_aft)/float(len_bef) > 0.3:
         print("Warning: around", 100*(len_bef-len_aft)/len_bef, "percent of your data has been dropped.")
         print()
