@@ -1,0 +1,23 @@
+,Conditions,R2s,Type
+0,H37Rv_1B_1,0.057086434,0.1% Byturate
+1,H37Rv_1B_2,0.056120926,0.1% Byturate
+2,H37Rv_1B_3,0.056086757,0.1% Byturate
+3,H37Rv_2G1B_1,0.076265605,0.2% Glucose + 0.1% Butyrate
+4,H37Rv_2G1B_2,0.077566459,0.2% Glucose + 0.1% Butyrate
+5,H37Rv_2G1B_3,0.07446282,0.2% Glucose + 0.1% Butyrate
+6,H37Rv_4G_1,0.057995747,0.4% Glucose
+7,H37Rv_4G_2,0.055786355,0.4% Glucose
+8,H37Rv_4G_3,0.05500363,0.4% Glucose
+9,H37Rv_HiFe_1,0.082975196,High Iron
+10,H37Rv_HiFe_2,0.083480237,High Iron
+11,H37Rv_HiFe_3,0.077801855,High Iron
+12,H37Rv_LoFe_1D_1,0.076861785,"Low Iron, 1 Day"
+13,H37Rv_LoFe_1D_2,0.077301433,"Low Iron, 1 Day"
+14,H37Rv_LoFe_1D_3,0.075393167,"Low Iron, 1 Day"
+15,H37Rv_LoFe_1W_1,0.073053043,"Low Iron, 1 Week"
+16,H37Rv_LoFe_1W_2,0.06834271,"Low Iron, 1 Week"
+17,H37Rv_LoFe_1W_3,0.065423671,"Low Iron, 1 Week"
+18,H37Rv_TOL_1,0.08512072,"Tolaxapol, pH 7"
+19,H37Rv_TOL_2,0.085183002,"Tolaxapol, pH 7"
+20,H37Rv_TOL_LpH_1,0.063686046,"Tolaxapol, pH 5.5"
+21,H37Rv_TOL_LpH_2,0.056193212,"Tolaxapol, pH 5.5"
