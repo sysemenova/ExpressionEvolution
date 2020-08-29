@@ -1,0 +1,1 @@
+Fortune, S., Livny, J., & Ioerger, T. R. (2019). Profiling gene expression in M. tuberculosis under different in vitro conditions. [Data set]. GEO Accession. https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE67035
