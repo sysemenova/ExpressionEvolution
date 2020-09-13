@@ -1,0 +1,13 @@
+seqfile = all_pairs.fasta
+outfile = results.out
+treefile = ../species.tree
+verbose = 2
+CodonFreq = 2
+cleandata = 1
+NSsites = 0
+fix_omega = 0
+runmode = -2
+seqtype = 1
+noisy = 9
+model = 0
+ndata = 1358
