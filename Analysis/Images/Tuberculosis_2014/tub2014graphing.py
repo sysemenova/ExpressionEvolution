@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 # import numpy as np
 wow = pd.read_csv("tub2014.csv")
 
-typecolors = {"Dextrose_Exp": "#83f556",
-              "Dextrose_sta": "#51a630",
-              "Fatty_acids_exp": "#6acdf7",
-              "Fatty_acids_sta": "#2e8bb3"}
+typecolors = {"Dextrose Exponential Phase": "#eb9e16",
+              "Dextrose Stationary Phase": "#f1ea49",
+              "Fatty Acids Exponential Phase": "#5dd95d",
+              "Fatty Acids Stationary Phase": "#3893d2"}
 
 barchart = True
 # Simple bar chart
@@ -19,8 +19,8 @@ if barchart:
         scatter[i].set_color(typecolors[justtypes[i]])
     makers = [plt.Line2D([0, 0], [0, 0], color=color, marker='o', linestyle='') for color in typecolors.values()]
     ax.legend(makers, typecolors.keys(), numpoints=1)
-    ax.set_title("R^2 Of Conditions")
-    ax.set_ylabel("R^2")
+    ax.set_title("$R^2$ Of Conditions")
+    ax.set_ylabel("$R^2$")
     ax.set_xlabel("Condition")
-    plt.xticks(rotation=20, horizontalalignment="right")
+    plt.xticks(rotation=10, horizontalalignment="right", fontsize = 7)
     plt.show()

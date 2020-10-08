@@ -3,24 +3,23 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-os.chdir("C:\\Users\\visitor\\Documents\\ExLinComb\\Images")
 wow = pd.read_csv("ecoli_data.csv")
 
-typenames = {"limite_carbon": "Limited Carbon",
+typenames = {"rich": "Rich Media",
              "one_carbon": "One Carbon Source",
-             "rich": "Rich Media",
+             "limite_carbon": "Varying Glucose Concentration",
              "stationary": "Stationary Phase",
              "stress": "Stress Conditions"}
-typecolors = {"limite_carbon": "yellow",
-              "one_carbon": "blue",
-              "rich": "green",
-              "stationary": "orange",
-              "stress": "red"}
+typecolors = {"rich": "#3893d2",
+              "one_carbon": "#5dd95d",
+              "limite_carbon": "#f1ea49",
+              "stationary": "#eb9e16",
+              "stress": "#ef3a38"}
 
 barchart = False
 barchartw0 = False
 partialsbar = True
-simil = False
+simil = True
 
 
 # Bar chart
@@ -37,7 +36,7 @@ if partialsbar:
     ax.set_title("How Much Do These Conditions Add to LB?")
     ax.set_ylabel("Partial Value")
     ax.set_xlabel("Condition")
-    plt.xticks(rotation = 20, horizontalalignment = "right")
+    plt.xticks(rotation = 20, horizontalalignment = "right", fontsize=7)
     plt.show()
     
 # Bar chart
@@ -51,10 +50,10 @@ if barchart:
         scatter[i].set_color(typecolors[justtypes[i]])
     makers = [plt.Line2D([0,0],[0,0], color = color, marker = 'o', linestyle = '') for color in typecolors.values()]
     ax.legend(makers, typenames.values(), numpoints = 1)
-    ax.set_title("R^2 Of Conditions")
-    ax.set_ylabel("R^2")
+    ax.set_title("$R^2$ Of Conditions, Colored By Stress Level")
+    ax.set_ylabel("$R^2$")
     ax.set_xlabel("Condition")
-    plt.xticks(rotation = 20, horizontalalignment = "right")
+    plt.xticks(rotation = 20, horizontalalignment = "right", fontsize=7)
     plt.show()
 
 # Bar chart with 0s
@@ -81,9 +80,9 @@ if simil:
     for name, dt in groups:
         scatter = ax.scatter(dt["Similarity to LB"], dt["R2s"], label = typenames[name])
     ax.legend(title = "Condition Type")
-    ax.set_xlabel("Euclidian distance to LB expression")
+    ax.set_xlabel("Euclidean distance to LB expression")
     #ax.set_xscale("log")
-    ax.set_ylabel("R^2")
-    ax.set_title("Similarity to LB vs R^2")
+    ax.set_ylabel("$R^2$")
+    ax.set_title("Similarity to LB vs $R^2$")
     plt.show()
     

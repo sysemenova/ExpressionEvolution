@@ -4,7 +4,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-os.chdir("C:\\Users\\visitor\\Documents\\ExLinComb\\Images")
 wow = pd.read_csv("rel606_data.csv")
 
 
@@ -49,7 +48,7 @@ if yes:
     
 # Concentration vs r with time as color, subplots by phase.
 # Change to NACL if necessary
-yes = False
+yes = True
 if yes:
     data = wow[wow["Type"] == "nacl"]
     grpd = data.groupby("Phase")
@@ -60,20 +59,23 @@ if yes:
         handles, labels = scatter.legend_elements(prop = "colors")
         legend2 = ax[x].legend(handles, labels, title = "Growth Time")
         
-        ax[x].set_ylabel("R^2 value")
+        ax[x].set_ylabel("$R^2$ value")
         ax[x].set_xlabel("Concentration (mM)")
         names = {"exponential": "Exponential Phase", "stationary": "Stationary Phase"}
-        title = "MgSO4 " + names[name] + ": Concentration vs R^2"
+        title = "NaCl " + names[name] + ": Concentration vs $R^2$"
         ax[x].set_title(title)
         x += 1
     plt.show()
 
 
 # ALL
+colors = {"glucose": "#ef3a38", "glycerol": "#3893d2", "nacl": "#f1ea49", "lactate": "#2d2b2e", "gluconate": "#b240e3",
+          "mgso4": "#eb9e16"}
+
 # Time vs r with type as color. Toggle "log" on and off
 yes = False
 if yes:
-    colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
+    #colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": "#b240e3", "mgso4": u"orange"}
     fig, ax = plt.subplots()
     color_map = wow["Type"].map(colors)
     scatter = ax.scatter(wow["Growth Time"], wow["R2s"], c = color_map)
@@ -88,7 +90,7 @@ if yes:
 # Time vs r with type as color. But each gets their own subplot
 yes = False
 if yes:
-    colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
+    #colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
     caps = {"glucose": "Glucose", "glycerol": "Glycerol", "nacl": "NaCl", "lactate": "Lactate", "gluconate": "Gluconate", "mgso4": "MgSO4"}
     fig, axs = plt.subplots(3, 2, sharex = True, sharey = True)
     
@@ -102,10 +104,10 @@ if yes:
             legend2 = axs[x, y].legend(handles, labels, title = "Concentration")
         else:
             axs[x, y].scatter(data["Growth Time"], data["R2s"], c = colors[name])
-        axs[x, y].set_ylabel("R^2 value")
+        axs[x, y].set_ylabel("$R^2$ value")
         axs[x, y].set_xlabel("Growth Time (h)")
         axs[x, y].set_xscale("log")
-        title = "Growth time vs R^2: " + caps[name]
+        title = "Growth time vs $R^2$: " + caps[name]
         axs[x, y].set_title(title)
         x += 1
         if x == 3:
@@ -117,7 +119,7 @@ if yes:
 # Time vs r with batch as color
 yes = False
 if yes:
-    colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
+    #colors = {"glucose": u"red", "glycerol": u"blue", "nacl": u"yellow", "lactate": u"black", "gluconate": u"purple", "mgso4": u"orange"}
     fig, axs = plt.subplots(3, 2, sharex = True, sharey = True)
     
     grpd = wow.groupby("Type")
@@ -143,7 +145,7 @@ if yes:
 yes = False
 if yes:
     fig, ax = plt.subplots()
-    colors = {"glucose":"red", "glycerol":"blue", "nacl":"yellow", "lactate":"black", "gluconate":"purple", "mgso4":"orange"}
+    #colors = {"glucose":"red", "glycerol":"blue", "nacl":"yellow", "lactate":"black", "gluconate":"purple", "mgso4":"orange"}
     scatter = ax.scatter(wow["Similarity to mgso4_400_7.2"], wow["R2s"], c = wow["Type"].map(colors))
     makers = [plt.Line2D([0,0],[0,0], color = color, marker = 'o', linestyle = '') for color in colors.values()]
     ax.legend(makers, colors.keys(), numpoints = 1)
@@ -156,20 +158,20 @@ if yes:
 yes = False
 if yes:
     fig, ax = plt.subplots()
-    colors = {"stationary":"red", "exponential":"blue", "late_stationary":"yellow"}
+    colors = {"stationary":"#ef3a38", "exponential":"#5dd95d", "late_stationary":"#f1ea49"}
     scatter = ax.scatter(wow["Similarity to mgso4_400_7.2"], wow["R2s"], c = wow["Phase"].map(colors))
     makers = [plt.Line2D([0,0],[0,0], color = color, marker = 'o', linestyle = '') for color in colors.values()]
     ax.legend(makers, colors.keys(), numpoints = 1)
-    ax.set_ylabel("R^2 value")
+    ax.set_ylabel("$R^2$ value")
     ax.set_xlabel("Similarity to MgSO4 at 400 mM at 7 hours (Euclidean distance)")
-    ax.set_title("Similarity to Best Condition vs R^2, Phase Colored")
+    ax.set_title("Similarity to Best Condition vs $R^2$, Phase Colored")
     plt.show()
 
 # Similarity to best glucose
 yes = False
 if yes:
     fig, ax = plt.subplots()
-    colors = {"glucose":"red", "glycerol":"blue", "nacl":"yellow", "lactate":"black", "gluconate":"purple", "mgso4":"orange"}
+    #colors = {"glucose":"red", "glycerol":"blue", "nacl":"yellow", "lactate":"black", "gluconate":"purple", "mgso4":"orange"}
     scatter = ax.scatter(wow["Similarity to glucose_4"], wow["R2s"], c = wow["Type"].map(colors))
     makers = [plt.Line2D([0,0],[0,0], color = color, marker = 'o', linestyle = '') for color in colors.values()]
     ax.legend(makers, colors.keys(), numpoints = 1)

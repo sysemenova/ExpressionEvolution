@@ -1,19 +1,19 @@
 ,Conditions,R2s,Type
-0,Glucose_6hr_exp1,0.085932162,gluc_exp
-1,Glucose_6hr_exp2,0.08763098,gluc_exp
-2,Glucose_6hr_exp3,0.084198183,gluc_exp
-3,Glucose_24hr_exp1,0.083709215,gluc_sta
-4,Glucose_24hr_exp2,0.08009833,gluc_sta
-5,Glucose_24hr_exp3,0.080981188,gluc_sta
-6,L-Lactate_6hr_exp1,0.099546013,lac_exp
-7,L-Lactate_6hr_exp2,0.107299309,lac_exp
-8,L-Lactate_6hr_exp3,0.081547168,lac_exp
-9,L-Lactate_24hr_exp1,0.090514222,lac_sta
-10,L-Lactate_24hr_exp2,0.097619664,lac_sta
-11,L-Lactate_24hr_exp3,0.076468058,lac_sta
-12,Pyruvate_6hr_exp1,0.098215066,pyr_exp
-13,Pyruvate_6hr_exp2,0.100817717,pyr_exp
-14,Pyruvate_6hr_exp3,0.077838902,pyr_exp
-15,Pyruvate_24hr_exp1,0.091434209,pyr_sta
-16,Pyruvate_24hr_exp2,0.085999814,pyr_sta
-17,Pyruvate_24hr_exp3,0.080184823,pyr_sta
+0,Glucose 6hr exp1,0.085932162,gluc_exp
+1,Glucose 6hr exp2,0.08763098,gluc_exp
+2,Glucose 6hr exp3,0.084198183,gluc_exp
+3,Glucose 24hr exp1,0.083709215,gluc_sta
+4,Glucose 24hr exp2,0.08009833,gluc_sta
+5,Glucose 24hr exp3,0.080981188,gluc_sta
+6,L-Lactate 6hr exp1,0.099546013,lac_exp
+7,L-Lactate 6hr exp2,0.107299309,lac_exp
+8,L-Lactate 6hr exp3,0.081547168,lac_exp
+9,L-Lactate 24hr exp1,0.090514222,lac_sta
+10,L-Lactate 24hr exp2,0.097619664,lac_sta
+11,L-Lactate 24hr exp3,0.076468058,lac_sta
+12,Pyruvate 6hr exp1,0.098215066,pyr_exp
+13,Pyruvate 6hr exp2,0.100817717,pyr_exp
+14,Pyruvate 6hr exp3,0.077838902,pyr_exp
+15,Pyruvate 24hr exp1,0.091434209,pyr_sta
+16,Pyruvate 24hr exp2,0.085999814,pyr_sta
+17,Pyruvate 24hr exp3,0.080184823,pyr_sta

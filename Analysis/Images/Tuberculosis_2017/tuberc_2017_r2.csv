@@ -1,13 +1,13 @@
 ,Conditions,R2s,Similarity to Dextrose_exp_2,Correlation to Dextrose_exp_2,Type
-0,Dextrose_exp_1,0.078275111,3183.275907,0.996298538,Dextrose Exponential Phase
-1,Dextrose_exp_2,0.078510008,0,1,Dextrose Exponential Phase
-2,Dextrose_sta_1,0.025314398,35471.45467,0.540397185,Dextrose Stationary Phase
-3,Dextrose_sta_2,0.024299284,35605.48795,0.536917289,Dextrose Stationary Phase
-4,Dextrose_nrp1_1,0.053083997,27025.53098,0.733207786,Dextrose Late Stationary Phase
-5,Dextrose_nrp1_2,0.047342741,31456.03642,0.638562939,Dextrose Late Stationary Phase
-6,Lipid_exp_1,0.058938708,16916.60023,0.895467616,Lipid Exponential Phase
-7,Lipid_exp_2,0.058950643,18241.67823,0.878450196,Lipid Exponential Phase
-8,Lipid_sta_1,0.043303835,27137.96814,0.730983239,Lipid Stationary Phase
-9,Lipid_sta_2,0.050877165,23819.32202,0.792755279,Lipid Stationary Phase
-10,Lipid_nrp1_1,0.050042672,33131.36735,0.599037829,Lipid Late Stationary Phase
-11,Lipid_nrp1_2,0.049135145,32712.08751,0.609122025,Lipid Late Stationary Phase
+0,Dextrose Exp 1,0.078275111,3183.275907,0.996298538,Dextrose Exponential Phase
+1,Dextrose Exp 2,0.078510008,0,1,Dextrose Exponential Phase
+2,Dextrose Sta 1,0.025314398,35471.45467,0.540397185,Dextrose Stationary Phase
+3,Dextrose Sta 2,0.024299284,35605.48795,0.536917289,Dextrose Stationary Phase
+4,Dextrose NRP1 1,0.053083997,27025.53098,0.733207786,Dextrose NRP1 Phase
+5,Dextrose NRP1 2,0.047342741,31456.03642,0.638562939,Dextrose NRP1 Phase
+6,Lipid Exp 1,0.058938708,16916.60023,0.895467616,Lipid Exponential Phase
+7,Lipid Exp 2,0.058950643,18241.67823,0.878450196,Lipid Exponential Phase
+8,Lipid Sta 1,0.043303835,27137.96814,0.730983239,Lipid Stationary Phase
+9,Lipid Sta 2,0.050877165,23819.32202,0.792755279,Lipid Stationary Phase
+10,Lipid NRP1 1,0.050042672,33131.36735,0.599037829,Lipid NRP1 Phase
+11,Lipid NRP1 2,0.049135145,32712.08751,0.609122025,Lipid NRP1 Phase
